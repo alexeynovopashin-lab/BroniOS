@@ -1,4 +1,4 @@
-# Томсон — бронирование фотостудии
+# BroniOS — бронирование фотостудии
 
 PWA-приложение для управления бронированиями фотостудии «Томсон».
 
@@ -72,11 +72,11 @@ PWA-приложение для управления бронированиям�
 Основная схема:
 
 ```text
-THOMCOH_OS (PWA)
+BroniOS (PWA)
         │
         │ HTTPS API
         ▼
-tomson-auth (Cloudflare Worker)
+broni-auth (Cloudflare Worker)
         │
         │ OAuth / Calendar API
         ▼
@@ -89,7 +89,7 @@ OAuth-токены не хранятся в клиентском коде PWA: �
 
 На этапе разработки используется отдельный тестовый календарь, чтобы проверять интеграцию без риска для рабочих бронирований.
 
-> Важно: `tomson-auth` — самостоятельный Cloudflare Worker, он деплоится отдельно от GitHub Pages и не является частью статики PWA. Его исходники хранятся в этом же репозитории, в папке `tomson-auth/`, чтобы код Worker'а не существовал только на одном ноутбуке.
+> Важно: `broni-auth` — самостоятельный Cloudflare Worker, он деплоится отдельно от GitHub Pages и не является частью статики PWA. Его исходники хранятся в этом же репозитории, в папке `broni-auth/`, чтобы код Worker'а не существовал только на одном ноутбуке.
 >
 > `CLIENT_SECRET` в репозиторий не попадает: он хранится как Cloudflare Secret и задаётся командой `npx wrangler secret put CLIENT_SECRET`.
 
@@ -110,7 +110,7 @@ OAuth-токены не хранятся в клиентском коде PWA: �
 
 ```text
 ┌─────────────────────────────────────────┐
-│               THOMCOH_OS                │
+│                 BroniOS                 │
 │                                         │
 │  PWA                                     │
 │  ├── календарь                           │
@@ -123,8 +123,8 @@ OAuth-токены не хранятся в клиентском коде PWA: �
                     │ HTTPS
                     ▼
 ┌─────────────────────────────────────────┐
-│            tomson-auth                   │
-│          Cloudflare Worker               │
+│               broni-auth                │
+│            Cloudflare Worker            │
 │                                         │
 │  ├── Google OAuth                        │
 │  ├── Calendar API proxy                 │
@@ -143,7 +143,7 @@ OAuth-токены не хранятся в клиентском коде PWA: �
 
 ### Серверная часть
 
-`tomson-auth` выполняет функции промежуточного сервера между PWA и Google Calendar API.
+`broni-auth` выполняет функции промежуточного сервера между PWA и Google Calendar API.
 
 Worker отвечает за:
 
@@ -159,7 +159,7 @@ Worker отвечает за:
 ## Структура репозитория
 
 ```text
-TOMCON_2/
+BroniOS/
 │
 ├── index.html          # основное PWA-приложение
 ├── manifest.json       # Web App Manifest
@@ -169,7 +169,7 @@ TOMCON_2/
 ├── README.md           # документация репозитория
 ├── CLAUDE_CONTEXT.md   # контекст продукта и архитектуры
 ├── ROADMAP.md          # состояние проекта и план работ
-└── tomson-auth/        # Cloudflare Worker: OAuth и Google Calendar API
+└── broni-auth/         # Cloudflare Worker: OAuth и Google Calendar API
     ├── src/index.js
     └── wrangler.toml
 ```
@@ -207,7 +207,7 @@ TOMCON_2/
 Например, если установлен Python:
 
 ```bash
-cd /path/to/TOMCON_2
+cd /path/to/BroniOS
 python3 -m http.server 8080
 ```
 
@@ -227,14 +227,14 @@ http://localhost:8080/
 
 Текущий репозиторий:
 
-`alexeynovopashin-lab/TOMCON_2`
+`alexeynovopashin-lab/BroniOS`
 
 Публикация осуществляется из ветки `main`.
 
 После включения GitHub Pages приложение доступно по адресу:
 
 ```text
-https://alexeynovopashin-lab.github.io/TOMCON_2/
+https://alexeynovopashin-lab.github.io/BroniOS/
 ```
 
 ### Публикация изменений
@@ -258,9 +258,9 @@ Worker не должен храниться вместе со статическ
 Локальная структура проекта разработки:
 
 ```text
-THOMCOH_OS/
+BroniOS/
 ├── ... основной проект ...
-└── tomson-auth/
+└── broni-auth/
     ├── src/
     │   └── index.js
     └── wrangler.toml
@@ -271,7 +271,7 @@ Worker разворачивается через Wrangler.
 Основные команды:
 
 ```bash
-cd /Users/alexey/Documents/Project_Git/THOMCOH_OS/tomson-auth
+cd /Users/alexey/Documents/Project_Git/BroniOS/broni-auth
 
 npx wrangler login
 npx wrangler whoami
@@ -370,7 +370,7 @@ Cloudflare Worker
 
 ### Google Calendar как интеграционный слой
 
-Google Calendar используется как рабочая система расписания, а `tomson-auth` изолирует OAuth и серверный доступ к API от публичного PWA.
+Google Calendar используется как рабочая система расписания, а `broni-auth` изолирует OAuth и серверный доступ к API от публичного PWA.
 
 ### Безопасная миграция
 
@@ -395,9 +395,8 @@ Google Calendar используется как рабочая система р
 
 ## Связанные компоненты
 
-- **PWA:** `TOMCON_2` — этот репозиторий
-- **Основное локальное окружение:** `THOMCOH_OS`
-- **Авторизация и Google Calendar API:** `tomson-auth` — отдельный Cloudflare Worker
+- **PWA:** `BroniOS` — этот репозиторий, он же основное локальное окружение
+- **Авторизация и Google Calendar API:** `broni-auth` — отдельный Cloudflare Worker
 - **Хостинг PWA:** GitHub Pages
 - **OAuth / API proxy:** Cloudflare Workers
 - **Хранилище OAuth-токенов:** Cloudflare KV

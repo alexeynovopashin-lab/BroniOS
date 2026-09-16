@@ -5,7 +5,7 @@ const SCOPES = "https://www.googleapis.com/auth/calendar https://www.googleapis.
 // Значения продублированы из index.html DEF.studio / DEF.halls вручную —
 // у Worker'а нет доступа к localStorage PWA, где администратор их правит
 // через настройки. Если адрес/телефон/составы залов поменяются в форме
-// настроек TOMCOH_OS, эти константы тоже придётся обновить руками.
+// настроек BroniOS, эти константы тоже придётся обновить руками.
 const STUDIO_CARD = {
   id: "tomson",
   name: "Фотостудия Томсон",
@@ -362,7 +362,7 @@ export default {
           expirationTtl: (tokens.expires_in || 3600) - 60
         });
 
-        const redirectTo = env.POST_AUTH_REDIRECT || "https://alexeynovopashin-lab.github.io/TOMCON_2/";
+        const redirectTo = env.POST_AUTH_REDIRECT || "https://alexeynovopashin-lab.github.io/BroniOS/";
         return Response.redirect(redirectTo + "?google=connected", 302);
       }
 
@@ -437,7 +437,7 @@ export default {
         });
       }
 
-      return new Response("Tomson Auth Worker is running", { headers: cors(request) });
+      return new Response("Broni Auth Worker is running", { headers: cors(request) });
     } catch (err) {
       return json({ error: err.message }, 500, request);
     }

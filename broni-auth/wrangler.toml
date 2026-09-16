@@ -1,4 +1,4 @@
-name = "tomson-auth"
+name = "broni-auth"
 main = "src/index.js"
 compatibility_date = "2024-09-23"
 
@@ -19,4 +19,4 @@ binding = "RATE_LIMIT"
 id = "deefb9273faf415bac8b31388112bc18"
 
 [vars]
-POST_AUTH_REDIRECT = "https://alexeynovopashin-lab.github.io/TOMCON_2/"
+POST_AUTH_REDIRECT = "https://alexeynovopashin-lab.github.io/BroniOS/"

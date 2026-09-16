@@ -1,5 +1,5 @@
 # CLAUDE_CONTEXT.md
-# Контекст проекта THOMCOH_OS / TOMCON_2
+# Контекст проекта BroniOS
 
 > Этот документ предназначен для AI-разработчика, который впервые подключается к проекту.
 >
@@ -9,38 +9,38 @@
 
 # 1. Что это за проект
 
-`THOMCOH_OS` — более широкий проект операционной системы для работы фотостудии.
+`BroniOS` — проект операционной системы для работы фотостудии.
 
-`TOMCON_2` — текущая PWA-часть, отвечающая прежде всего за **управление бронированиями и календарём фотостудии «Томсон»**.
+Текущая PWA-часть отвечает прежде всего за **управление бронированиями и календарём фотостудии «Томсон»**.
 
 Репозиторий:
 
 ```text
-alexeynovopashin-lab/TOMCON_2
+alexeynovopashin-lab/BroniOS
 ```
 
 Основное приложение:
 
 ```text
-https://alexeynovopashin-lab.github.io/TOMCON_2/
+https://alexeynovopashin-lab.github.io/BroniOS/
 ```
 
 Локальный проект:
 
 ```text
-/Users/alexey/Documents/Project_Git/THOMCOH_OS/
+/Users/alexey/Documents/Project_Git/BroniOS/
 ```
 
 Отдельный Cloudflare Worker:
 
 ```text
-/Users/alexey/Documents/Project_Git/THOMCOH_OS/tomson-auth/
+/Users/alexey/Documents/Project_Git/BroniOS/broni-auth/
 ```
 
 Worker:
 
 ```text
-https://tomson-auth.alexeynovopashin.workers.dev
+https://broni-auth.alexeynovopashin.workers.dev
 ```
 
 ---
@@ -254,7 +254,7 @@ Google Calendar нужен не только для отображения.
 Поэтому в перспективе должно быть возможно:
 
 ```text
-THOMCOH_OS
+BroniOS
      ↕
 Google Calendar
 ```
@@ -299,7 +299,7 @@ PWA не должен хранить Google Client Secret.
 
 ```text
 ┌───────────────────────────┐
-│       THOMCOH_OS          │
+│          BroniOS          │
 │          PWA              │
 │                           │
 │  calendar / bookings      │
@@ -308,7 +308,7 @@ PWA не должен хранить Google Client Secret.
               │ HTTPS
               ▼
 ┌───────────────────────────┐
-│       tomson-auth         │
+│        broni-auth         │
 │    Cloudflare Worker      │
 │                           │
 │  Google OAuth             │
@@ -327,15 +327,15 @@ PWA не должен хранить Google Client Secret.
 
 ---
 
-# 10. tomson-auth
+# 10. broni-auth
 
 Worker находится отдельно от GitHub Pages-приложения.
 
 Локально:
 
 ```text
-THOMCOH_OS/
-└── tomson-auth/
+BroniOS/
+└── broni-auth/
     ├── src/
     │   └── index.js
     └── wrangler.toml
@@ -344,13 +344,13 @@ THOMCOH_OS/
 Cloudflare Worker:
 
 ```text
-tomson-auth
+broni-auth
 ```
 
 URL:
 
 ```text
-https://tomson-auth.alexeynovopashin.workers.dev
+https://broni-auth.alexeynovopashin.workers.dev
 ```
 
 Worker уже создан и задеплоен.
@@ -910,8 +910,8 @@ sw.js
 и, если работа касается Google:
 
 ```text
-THOMCOH_OS/tomson-auth/src/index.js
-THOMCOH_OS/tomson-auth/wrangler.toml
+BroniOS/broni-auth/src/index.js
+BroniOS/broni-auth/wrangler.toml
 ```
 
 Не предполагать, что README описывает весь проект.
@@ -943,7 +943,7 @@ npx wrangler whoami
 Cloudflare Worker:
 
 ```text
-tomson-auth
+broni-auth
 ```
 
 уже задеплоен.
@@ -973,7 +973,7 @@ CLIENT_SECRET
 Основная идея `wrangler.toml`:
 
 ```toml
-name = "tomson-auth"
+name = "broni-auth"
 main = "src/index.js"
 compatibility_date = "2024-09-23"
 
@@ -982,7 +982,7 @@ binding = "TOKENS"
 id = "..."
 
 [vars]
-POST_AUTH_REDIRECT = "https://alexeynovopashin-lab.github.io/TOMCON_2/"
+POST_AUTH_REDIRECT = "https://alexeynovopashin-lab.github.io/BroniOS/"
 ```
 
 Реальные секреты и приватные идентификаторы не переносить в frontend или README.
@@ -1232,9 +1232,9 @@ Google event удалён
 
 ---
 
-# 38. Более широкий контекст THOMCOH_OS
+# 38. Более широкий контекст BroniOS
 
-TOMCON_2 — не обязательно конечная точка.
+Модуль бронирования — не обязательно конечная точка.
 
 В более широком проекте предполагается система, которая может объединять:
 
@@ -1249,9 +1249,9 @@ TOMCON_2 — не обязательно конечная точка.
 - финансовые статусы;
 - AI-инструменты.
 
-Но **не надо сейчас пытаться реализовать всю систему в TOMCON_2**.
+Но **не надо сейчас пытаться реализовать всю систему сразу**.
 
-TOMCON_2 должен сначала стать очень хорошим и надёжным модулем бронирования.
+BroniOS должен сначала стать очень хорошим и надёжным модулем бронирования.
 
 ---
 
@@ -1356,7 +1356,7 @@ Google недоступен
 
 Особенно важно для Google Calendar:
 
-> **не создавать второй механизм синхронизации, если уже существует `tomson-auth`.**
+> **не создавать второй механизм синхронизации, если уже существует `broni-auth`.**
 
 ---
 
@@ -1421,13 +1421,13 @@ Google недоступен
 Если нужно запомнить проект в пяти строках:
 
 ```text
-TOMCON_2 = PWA для администратора фотостудии Томсон.
+BroniOS = PWA для администратора фотостудии Томсон.
 
 3 зала = Эдисон + Сфера + Вегас.
 
 Google Calendar = рабочее расписание и внешний источник календарных событий.
 
-tomson-auth = Cloudflare Worker, который прячет OAuth и Google API от клиента.
+broni-auth = Cloudflare Worker, который прячет OAuth и Google API от клиента.
 
 Следующий главный этап = полноценная двусторонняя синхронизация без дубликатов.
 ```
@@ -1444,8 +1444,8 @@ tomson-auth = Cloudflare Worker, который прячет OAuth и Google API
 2. изучи `index.html`;
 3. изучи `manifest.json`;
 4. изучи `sw.js`;
-5. изучи `tomson-auth/src/index.js`;
-6. изучи `tomson-auth/wrangler.toml`;
+5. изучи `broni-auth/src/index.js`;
+6. изучи `broni-auth/wrangler.toml`;
 7. сопоставь фактический код с этим документом;
 8. составь краткую карту текущего состояния;
 9. только после этого предложи следующий минимальный технический шаг.

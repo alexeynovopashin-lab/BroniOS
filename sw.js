@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tomson-booking-v7';
+const CACHE_NAME = 'broni-booking-v7';
 const ASSETS = [
   './',
   './index.html',

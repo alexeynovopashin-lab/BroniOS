@@ -576,7 +576,7 @@ const CALENDAR_SETS = {
 };
 
 const GOOGLE_CALENDARS = CALENDAR_SETS[CALENDAR_MODE] || CALENDAR_SETS.test;
-const WORKER_URL = "https://tomson-auth.alexeynovopashin.workers.dev";
+const WORKER_URL = "https://broni-auth.alexeynovopashin.workers.dev";
 /* Тот же секрет, что задан Worker'у через `wrangler secret put STUDIO_KEY».
    Без него /calendar/* отвечает 401 — Этап 7 ROADMAP.md. */
 const STUDIO_KEY = "96d07d37eeff2bc9779eb1231c0e7f9cf905f229b4d5c856";
@@ -970,8 +970,24 @@ const DEF = {
   timeStep: 60          // шаг бронирования в минутах (60 или 30)
 };
 
-let cfg = migrateConfig(load("tomson_cfg", DEF));
-let bookings = migrateBookings(load("tomson_bk", []));
+/* Переименование TOMCOH_OS → BroniOS сменило префикс ключей localStorage
+   с tomson_ на broni_. У администраторов настройки и брони уже лежат под
+   старыми ключами, поэтому переносим их один раз — при первом запуске новой
+   сборки. Старые ключи намеренно не удаляем: если понадобится откатиться на
+   предыдущую версию, данные останутся на месте. */
+function migrateStorageKeys() {
+  for (const [oldKey, newKey] of [["tomson_cfg","broni_cfg"], ["tomson_bk","broni_bk"]]) {
+    try {
+      if (localStorage.getItem(newKey) !== null) continue;
+      const v = localStorage.getItem(oldKey);
+      if (v !== null) localStorage.setItem(newKey, v);
+    } catch {}
+  }
+}
+migrateStorageKeys();
+
+let cfg = migrateConfig(load("broni_cfg", DEF));
+let bookings = migrateBookings(load("broni_bk", []));
 let hallId = cfg.halls[0]?.id || "sphere";
 let allHallsMode = false;
 let view = "month";
@@ -985,8 +1001,8 @@ function load(k, d) {
   catch { return structuredClone(d); }
 }
 function save() {
-  localStorage.setItem("tomson_cfg", JSON.stringify(cfg));
-  localStorage.setItem("tomson_bk", JSON.stringify(bookings));
+  localStorage.setItem("broni_cfg", JSON.stringify(cfg));
+  localStorage.setItem("broni_bk", JSON.stringify(bookings));
 }
 
 /* Настройки уже сохранены у администраторов в localStorage и новых полей
@@ -2326,10 +2342,13 @@ function settingsTab(tab){
       <p class="hint" style="margin-top:12px">Экспорт сохраняет настройки и все брони.</p>`;
     $("expData").onclick = () => {
       const blob = new Blob([JSON.stringify({cfg,bookings},null,2)],{type:"application/json"});
-      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "tomson-backup.json"; a.click();
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "broni-backup.json"; a.click();
     };
     $("resetData").onclick = () => {
       if (!confirm("Сбросить настройки и все брони?")) return;
+      localStorage.removeItem("broni_cfg");
+      localStorage.removeItem("broni_bk");
+      // Старые ключи тоже, иначе migrateStorageKeys вернёт данные при перезагрузке.
       localStorage.removeItem("tomson_cfg");
       localStorage.removeItem("tomson_bk");
       location.reload();
