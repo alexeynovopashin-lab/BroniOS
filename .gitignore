@@ -8,3 +8,6 @@ node_modules/
 
 # Локальные настройки Claude Code
 .claude/settings.local.json
+
+# Разбор AppEvent: в нём выручка студии, в публичный репозиторий не кладём
+APPEVENT_STATS_ANALYSIS.md
