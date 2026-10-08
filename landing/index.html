@@ -84,7 +84,7 @@ h2{font-size:clamp(26px,3.4vw,36px);letter-spacing:-.02em;margin:0 0 10px;line-h
 .pill{font-size:13px;border-radius:999px;padding:4px 10px;background:var(--bg);border:1px solid var(--line)}
 .pill.c1{border-color:var(--edison)} .pill.c2{border-color:var(--ok)} .pill.c3{color:var(--ink2)}
 
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;counter-reset:s}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:s}
 .step{counter-increment:s;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
 .step::before{content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;
   background:var(--accent);color:var(--on);font-weight:700;margin-bottom:12px}
@@ -106,10 +106,11 @@ footer{padding:32px 0 calc(32px + env(safe-area-inset-bottom,0px));color:var(--i
   .hero{grid-template-columns:1fr;gap:32px;padding-top:16px}
   .phone{margin:0 auto}
   .who{grid-template-columns:repeat(2,1fr)}
-  .feats,.steps,.facts{grid-template-columns:1fr}
+  .steps{grid-template-columns:repeat(2,1fr)}
+  .feats,.facts{grid-template-columns:1fr}
 }
 @media (max-width:420px){
-  .who{grid-template-columns:1fr}
+  .who,.steps{grid-template-columns:1fr}
   .btn.ghost{margin:10px 0 0}
   .badge{display:none}
 }
@@ -235,11 +236,12 @@ footer{padding:32px 0 calc(32px + env(safe-area-inset-bottom,0px));color:var(--i
 <section id="start">
   <div class="wrap">
     <h2>Как подключиться</h2>
-    <p class="sec-lead">Так будет выглядеть подключение. Сейчас BroniOS в тестовом режиме, открытой регистрации пока нет.</p>
+    <p class="sec-lead">BroniOS сейчас в тесте, запуск скоро. Попасть можно двумя путями: по ссылке-приглашению (от нас или от фотографа, который уже работает со студией) или самому. Дальше одна и та же короткая настройка.</p>
     <div class="steps">
-      <div class="step"><h3>Ссылка или заявка</h3><p>Студию приглашают по ссылке — или она регистрируется сама.</p></div>
-      <div class="step"><h3>Залы и правила</h3><p>Названия залов, цены, часы работы, куда смотрят окна.</p></div>
-      <div class="step"><h3>Окно на сайт</h3><p>Одна строчка кода на сайт студии — и клиенты бронируют сами.</p></div>
+      <div class="step"><h3>Вход по телефону</h3><p>Номер телефона и одноразовый код. Этот номер становится хозяином студии.</p></div>
+      <div class="step"><h3>Студия и залы</h3><p>Адрес и точка на карте, залы с цветом и ценой, куда смотрят окна.</p></div>
+      <div class="step"><h3>Часы, оплата, правила</h3><p>Часы работы, предоплата и отмена, правила зала из готового шаблона.</p></div>
+      <div class="step"><h3>Открыть запись</h3><p>Пробная бронь, кнопка «Открыть запись» — и окно брони встаёт на сайт студии.</p></div>
     </div>
   </div>
 </section>
