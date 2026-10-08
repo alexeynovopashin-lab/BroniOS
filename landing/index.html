@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BroniOS — бронирование для фотостудий</title>
+<meta name="description" content="BroniOS — расписание залов, заявки клиентов и связь с фотографом в одном месте. Тестовая страница.">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#f5f1ea; --surface:#fffdf9; --ink:#17140f; --ink2:#6d655a;
+  --line:rgba(23,20,15,.12); --accent:#b4532a; --accent-soft:rgba(180,83,42,.10); --on:#fff;
+  --edison:#c9853f; --sfera:#4f7cac; --vegas:#8a5a9e; --ok:#3f8a5a;
+  --radius:20px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141311; --surface:#1e1c19; --ink:#efebe4; --ink2:#a39b8f;
+    --line:rgba(239,235,228,.13); --accent:#e08a5f; --accent-soft:rgba(224,138,95,.14); --on:#1a120c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141311; --surface:#1e1c19; --ink:#efebe4; --ink2:#a39b8f;
+  --line:rgba(239,235,228,.13); --accent:#e08a5f; --accent-soft:rgba(224,138,95,.14); --on:#1a120c;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+header.top{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+.logo{font-weight:800;font-size:20px;letter-spacing:-.02em;text-decoration:none;color:var(--ink)}
+.logo span{color:var(--accent)}
+.badge{font-size:13px;color:var(--ink2);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:40px 0 64px}
+h1{font-size:clamp(32px,5.4vw,56px);line-height:1.05;letter-spacing:-.03em;margin:0 0 18px;font-weight:800}
+.lead{font-size:clamp(17px,2vw,20px);color:var(--ink2);margin:0 0 28px;max-width:34em}
+.btn{display:inline-block;background:var(--accent);color:var(--on);text-decoration:none;font-weight:600;
+  padding:14px 22px;border-radius:14px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);margin-left:8px}
+
+/* hero picture: a booking window drawn in CSS, no real data */
+.phone{background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:18px;
+  box-shadow:0 24px 60px -30px rgba(0,0,0,.35);max-width:360px;margin-left:auto}
+.phone h3{margin:0 0 4px;font-size:15px}
+.phone .sub{font-size:13px;color:var(--ink2);margin-bottom:14px}
+.halls{display:flex;gap:6px;margin-bottom:14px}
+.hall{flex:1;font-size:13px;text-align:center;padding:8px 0;border-radius:10px;border:1px solid var(--line)}
+.hall.on{background:var(--accent);color:var(--on);border-color:transparent;font-weight:600}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.slot{font-size:13px;text-align:center;padding:9px 0;border-radius:10px;background:var(--bg)}
+.slot.busy{opacity:.35;text-decoration:line-through}
+.slot.pick{outline:2px solid var(--accent);background:var(--accent-soft);font-weight:600}
+.sun{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink2);margin:14px 0 12px}
+.sun i{width:10px;height:10px;border-radius:50%;background:#e9b44c;flex:none}
+.phone .btn{display:block;text-align:center;padding:12px}
+
+section{padding:56px 0;border-top:1px solid var(--line)}
+h2{font-size:clamp(26px,3.4vw,36px);letter-spacing:-.02em;margin:0 0 10px;line-height:1.15}
+.sec-lead{color:var(--ink2);margin:0 0 32px;max-width:40em}
+
+.who{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.card h3{margin:0 0 6px;font-size:17px}
+.card p{margin:0;color:var(--ink2);font-size:15px}
+.ico{width:40px;height:40px;border-radius:12px;background:var(--accent-soft);color:var(--accent);
+  display:grid;place-items:center;margin-bottom:14px}
+.ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+.feats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.feat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px}
+.feat h3{margin:0 0 8px;font-size:19px}
+.feat p{margin:0 0 12px;color:var(--ink2)}
+.feat ul{margin:0;padding-left:18px;color:var(--ink2);font-size:15px}
+.feat li{margin:3px 0}
+.ex{margin-top:14px;font-size:14px;background:var(--bg);border-radius:12px;padding:10px 12px}
+.ex b{color:var(--ink)}
+
+.status{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pill{font-size:13px;border-radius:999px;padding:4px 10px;background:var(--bg);border:1px solid var(--line)}
+.pill.c1{border-color:var(--edison)} .pill.c2{border-color:var(--ok)} .pill.c3{color:var(--ink2)}
+
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:s}
+.step{counter-increment:s;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+.step::before{content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;
+  background:var(--accent);color:var(--on);font-weight:700;margin-bottom:12px}
+.step h3{margin:0 0 6px;font-size:17px}
+.step p{margin:0;color:var(--ink2);font-size:15px}
+
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.fact{padding:4px 0}
+.fact b{display:block;font-size:17px;margin-bottom:4px}
+.fact span{color:var(--ink2);font-size:15px}
+
+.note{background:var(--accent-soft);border-radius:var(--radius);padding:24px}
+.note h2{font-size:24px}
+.note p{margin:0;color:var(--ink2)}
+
+footer{padding:32px 0 calc(32px + env(safe-area-inset-bottom,0px));color:var(--ink2);font-size:14px;border-top:1px solid var(--line)}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:32px;padding-top:16px}
+  .phone{margin:0 auto}
+  .who{grid-template-columns:repeat(2,1fr)}
+  .steps{grid-template-columns:repeat(2,1fr)}
+  .feats,.facts{grid-template-columns:1fr}
+}
+@media (max-width:420px){
+  .who,.steps{grid-template-columns:1fr}
+  .btn.ghost{margin:10px 0 0}
+  .badge{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="#">Broni<span>OS</span></a>
+    <span class="badge">Тестовая версия · в разработке</span>
+  </header>
+
+  <div class="hero">
+    <div>
+      <h1>Бронирование для фотостудии без звонков и таблиц</h1>
+      <p class="lead">BroniOS — расписание залов, заявки клиентов и связь с фотографом в одном месте. Клиент сам выбирает зал и время на сайте студии, администратор видит всё в календаре, как на iPhone.</p>
+      <a class="btn" href="#features">Что умеет</a><a class="btn ghost" href="#start">Как подключиться</a>
+    </div>
+
+    <div class="phone" aria-label="Пример окна брони на сайте студии">
+      <h3>Выберите зал и время</h3>
+      <div class="sub">Пятница, 16 октября · время студии</div>
+      <div class="halls"><div class="hall">Эдисон</div><div class="hall on">Сфера</div><div class="hall">Вегас</div></div>
+      <div class="slots">
+        <div class="slot busy">10:00</div><div class="slot busy">11:00</div><div class="slot">12:00</div><div class="slot pick">13:00</div>
+        <div class="slot">14:00</div><div class="slot">15:00</div><div class="slot busy">16:00</div><div class="slot">17:00</div>
+      </div>
+      <div class="sun"><i></i>13:00–15:00 — солнце в окнах зала</div>
+      <span class="btn">Забронировать 13:00–15:00</span>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <h2>Для кого</h2>
+    <p class="sec-lead">Одна система, но у каждого свой экран.</p>
+    <div class="who">
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-7h6v7"/></svg></div>
+        <h3>Владелец студии</h3>
+        <p>Видит загрузку залов и сам решает правила: цены, скидки, предоплату.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+        <h3>Администратор</h3>
+        <p>Принимает заявки, двигает брони пальцем, отвечает клиентам из одного окна.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></div>
+        <h3>Клиент</h3>
+        <p>Бронирует зал за минуту и получает ссылку, где всё про его съёмку.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="3"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l2-3h4l2 3"/></svg></div>
+        <h3>Фотограф</h3>
+        <p>Видит, где будет свет, и может прямо со съёмки попросить продлить час.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>Что умеет</h2>
+    <p class="sec-lead">Четыре главные части. Часть из них уже работает в студии «Томсон» в Томске, остальное собираем.</p>
+    <div class="feats">
+      <div class="feat">
+        <h3>Окно брони на сайте студии</h3>
+        <p>Встаёт на любой сайт. Цвета и шрифты подстраиваются под студию.</p>
+        <ul>
+          <li>клиент выбирает зал, дату и время — занятое уже зачёркнуто;</li>
+          <li>время показано по часам студии, даже если клиент в другом городе;</li>
+          <li>подсказка, когда в зал заглядывает солнце.</li>
+        </ul>
+        <div class="ex"><b>Пример:</b> клиентка в 23:40 видит, что «Сфера» свободна в пятницу с 13:00, и бронирует, не дожидаясь утра и звонка.</div>
+      </div>
+      <div class="feat">
+        <h3>Календарь администратора</h3>
+        <p>Все залы на одном экране — день, неделя, месяц. Похож на календарь iPhone.</p>
+        <ul>
+          <li>бронь можно перетащить или поправить время цифрами;</li>
+          <li>поиск по броням: «собака», «Елена»;</li>
+          <li>зал можно закрыть на уборку, ремонт или смену декораций.</li>
+        </ul>
+        <div class="status"><span class="pill c1">заявка</span><span class="pill c2">подтверждено</span><span class="pill c3">прошедшая</span></div>
+      </div>
+      <div class="feat">
+        <h3>Страница брони для клиента</h3>
+        <p>После брони клиент получает ссылку. Без пароля и без приложения.</p>
+        <ul>
+          <li>дата, зал, сколько осталось до съёмки;</li>
+          <li>чат со студией и чек об оплате;</li>
+          <li>попросить перенос или отменить, если до съёмки больше суток.</li>
+        </ul>
+        <div class="ex"><b>Пример:</b> клиент нажимает «перенести на субботу» — у администратора это падает во «Входящие», он соглашается одной кнопкой.</div>
+      </div>
+      <div class="feat">
+        <h3>Свет и связь с фотографом</h3>
+        <p>BroniOS знает, куда смотрят окна залов, и дружит с планировщиком фотографа Light Plan.</p>
+        <ul>
+          <li>фотограф заранее видит, когда в зале будет солнце;</li>
+          <li>со съёмки — «продлить час» или «позвать администратора»;</li>
+          <li>администратор отвечает «иду» одним нажатием.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Как устроено</h2>
+    <p class="sec-lead">Чтобы студии было спокойно.</p>
+    <div class="facts">
+      <div class="fact"><b>Деньги — сразу студии</b><span>Студия сама выбирает предоплату: 100 %, 50 %, 30 % или без неё.</span></div>
+      <div class="fact"><b>Мягкий переход</b><span>Можно не бросать привычные сервисы и переезжать постепенно.</span></div>
+      <div class="fact"><b>Данные клиентов в России</b><span>Телефоны клиентов будут храниться на серверах в России, как требует закон.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="start">
+  <div class="wrap">
+    <h2>Как подключиться</h2>
+    <p class="sec-lead">BroniOS сейчас в тесте, запуск скоро. Попасть можно двумя путями: по ссылке-приглашению (от нас или от фотографа, который уже работает со студией) или самому. Дальше одна и та же короткая настройка.</p>
+    <div class="steps">
+      <div class="step"><h3>Вход по телефону</h3><p>Номер телефона и одноразовый код. Этот номер становится хозяином студии.</p></div>
+      <div class="step"><h3>Студия и залы</h3><p>Адрес и точка на карте, залы с цветом и ценой, куда смотрят окна.</p></div>
+      <div class="step"><h3>Часы, оплата, правила</h3><p>Часы работы, предоплата и отмена, правила зала из готового шаблона.</p></div>
+      <div class="step"><h3>Открыть запись</h3><p>Пробная бронь, кнопка «Открыть запись» — и окно брони встаёт на сайт студии.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="note">
+      <h2>Это тестовая страница</h2>
+      <p>Здесь нет форм и счётчиков: страница ничего не собирает и не сохраняет. Цены на BroniOS ещё не определены.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">BroniOS · операционная система для фотостудий · 2026</div>
+</footer>
+</body>
+</html>
