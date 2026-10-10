@@ -1,0 +1,1086 @@
+<title>Окно брони BroniOS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600&family=Roboto:wght@400;500;700&family=PT+Serif:wght@400;700&display=swap">
+<style>
+/* Layout: one phone-sized booking widget (iOS Calendar / Light Plan structure: month in words → day as an hour ribbon) + a small «пульт» beside it. The widget has its own theme tokens (--w-*), set from the pult, because each studio site restyles it. */
+:root{
+  --bg:#eeece8; --card:#fbfaf8; --ink:#1b1a18; --muted:#6b675f; --line:rgba(27,26,24,.13); --accent:#3d5a80;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#141413; --card:#1e1d1b; --ink:#eeebe5; --muted:#9a958c; --line:rgba(238,235,229,.13); --accent:#9db7d9; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141413; --card:#1e1d1b; --ink:#eeebe5; --muted:#9a958c; --line:rgba(238,235,229,.13); --accent:#9db7d9; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--sans);padding-inline:16px;padding-block:20px 40px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.page{max-width:980px;margin:0 auto;display:grid;grid-template-columns:minmax(0,390px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.page{grid-template-columns:minmax(0,1fr)}}
+.top{max-width:980px;margin:0 auto 16px}
+.top h1{font-size:22px;margin:0 0 4px;font-weight:700}
+.top p{margin:0;color:var(--muted);max-width:68ch}
+
+/* ---------------- widget ---------------- */
+.w{
+  --w-bg:#f5f1ea; --w-surface:#fffdf9; --w-ink:#17140f; --w-ink2:#6d655a; --w-line:rgba(23,20,15,.12);
+  --w-accent:#b4532a; --w-on:#fff; --w-busy:#e9e3d8; --w-busy-ink:#8a8174; --w-bad:#c0392b; --w-ok:#2f7a4a;
+  --w-font:"Manrope",-apple-system,sans-serif; --w-head:"Playfair Display",Georgia,serif; --w-r:12px;
+  background:var(--w-bg);color:var(--w-ink);font-family:var(--w-font);
+  border-radius:28px;border:1px solid var(--line);overflow:hidden;height:760px;max-height:calc(100vh - 40px);min-height:600px;
+  display:flex;flex-direction:column;box-shadow:0 20px 50px -30px rgba(0,0,0,.45);position:relative;min-width:0;
+}
+.w button{color:inherit}
+.w .acc{color:var(--w-accent)}
+.wbar{display:flex;align-items:center;gap:6px;padding:12px 14px 6px;min-height:48px}
+.wbar .back{border:0;background:none;color:var(--w-accent);font-size:16px;padding:4px 2px;display:flex;align-items:center;gap:2px;white-space:nowrap}
+.wbar .back b{font-size:22px;font-weight:400;line-height:1;margin-top:-2px}
+.wbar .ttl{flex:1;text-align:center;font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wbar .sp{width:70px;flex:none}
+.wscroll{flex:1;overflow-y:auto;overflow-x:hidden;min-height:0;scroll-behavior:smooth}
+.wfoot{border-top:1px solid var(--w-line);background:var(--w-surface);padding:10px 14px 14px;display:grid;gap:8px}
+.frow{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.frow b{font-size:16px;font-variant-numeric:tabular-nums}
+.frow span{color:var(--w-ink2);font-size:13px}
+.go{border:0;background:var(--w-accent);color:var(--w-on)!important;border-radius:var(--w-r);padding:13px;font-weight:700;font-size:16px;width:100%}
+.go.ghost{background:none;color:var(--w-accent)!important;border:1px solid var(--w-line)}
+.hint{font-size:13px;color:var(--w-ink2);text-align:center}
+.mine{margin:4px 14px 8px;background:var(--w-surface);border:1px solid var(--w-line);border-radius:var(--w-r);padding:10px 12px;display:flex;justify-content:space-between;gap:8px;font-size:13.5px;text-align:left;width:calc(100% - 28px)}
+.mine b{color:var(--w-accent);font-weight:600;white-space:nowrap}
+
+/* hall segmented (iOS) */
+.seg{display:flex;background:var(--w-busy);border-radius:9px;padding:2px;margin:0 14px 8px;gap:2px}
+.seg button{flex:1;border:0;background:none;border-radius:7px;padding:6px 4px;font-size:13.5px;font-weight:500}
+.seg button.on{background:var(--w-surface);box-shadow:0 1px 3px rgba(0,0,0,.15);font-weight:600}
+.hrow{display:flex;gap:6px;align-items:center;margin:0 14px 8px;min-width:0}
+.hscroll{flex:1;display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;min-width:0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 18px,#000 calc(100% - 18px),transparent);mask-image:linear-gradient(90deg,transparent,#000 18px,#000 calc(100% - 18px),transparent)}
+.hscroll::-webkit-scrollbar{display:none}
+.hscroll button{flex:none;border:1px solid var(--w-line);background:var(--w-surface);border-radius:999px;padding:6px 13px;font-size:13.5px;white-space:nowrap;scroll-snap-align:center;scroll-snap-stop:always}
+.hscroll button.on{background:var(--w-accent);border-color:var(--w-accent);color:var(--w-on)!important;font-weight:600}
+.hscroll button.mid:not(.on){border-color:var(--w-accent);color:var(--w-accent)!important}
+.dk .flt{flex-wrap:wrap}
+.greet{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 14px 10px;padding:9px 12px;border-radius:var(--w-r);background:color-mix(in srgb,var(--w-accent) 10%,var(--w-surface));font-size:15px;font-weight:600}
+.greet button{border:0;background:none;color:var(--w-accent)!important;font-size:13px;font-weight:500;padding:0;white-space:nowrap}
+.pdtext{padding:4px 14px 12px;border-top:1px solid var(--w-line);font-size:13px;display:grid;gap:6px}
+.pdtext p{margin:0}
+.chkb{display:flex;flex-direction:column;gap:8px;padding:14px 14px 4px}
+.chkb .go{flex:none;display:block}
+.dk .sheet{align-items:center;justify-content:center}
+.dk .sheet .in2{width:420px;border-radius:16px;max-height:80%}
+.dk .sheet .grab{display:none}
+.hall-all{flex:none;border:1px solid var(--w-line);background:var(--w-surface);border-radius:999px;padding:6px 11px;font-size:13.5px;color:var(--w-accent)!important;white-space:nowrap}
+.sheet{position:absolute;inset:0;z-index:20;background:rgba(0,0,0,.35);display:flex;align-items:flex-end}
+.sheet .in2{background:var(--w-bg);width:100%;border-radius:18px 18px 0 0;padding:8px 0 14px;max-height:70%;overflow-y:auto}
+.sheet .grab{width:38px;height:5px;border-radius:3px;background:var(--w-line);margin:2px auto 8px}
+.sheet .row .chk{color:var(--w-accent);font-weight:700}
+
+/* month */
+.mhead{display:flex;align-items:baseline;justify-content:space-between;padding:4px 16px 6px}
+.mhead h2{margin:0;font-family:var(--w-head);font-size:26px;font-weight:600;letter-spacing:-.01em}
+.mhead .nav{display:flex;gap:2px}
+.mhead .nav button{border:0;background:none;color:var(--w-accent);font-size:22px;width:36px;height:32px;border-radius:8px}
+.mhead .nav button:disabled{opacity:.25;cursor:default}
+.wd{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));padding:0 8px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--w-ink2);text-align:center}
+.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));padding:4px 8px 6px;row-gap:2px}
+.cell{border:0;background:none;display:grid;justify-items:center;align-content:start;gap:1px;padding:5px 0 6px;min-height:58px;border-top:1px solid var(--w-line);border-radius:0}
+.cell .n{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:17px;font-variant-numeric:tabular-nums}
+.cell .l{font-size:10.5px;line-height:1.15;color:var(--w-ink2);max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 2px}
+.cell.today .n{color:var(--w-accent);font-weight:700}
+.cell.full .l{color:var(--w-bad)}
+.cell.few .l{color:var(--w-accent)}
+.cell.off{opacity:.32;cursor:default}
+.cell.out{opacity:.28}
+.cell:not(.off):hover .n{background:var(--w-busy)}
+.legend{padding:4px 16px 12px;font-size:12px;color:var(--w-ink2)}
+.link{border:0;background:none;color:var(--w-accent)!important;font-size:14.5px;padding:8px 16px 16px;text-align:left}
+
+/* day */
+.strip{position:sticky;top:0;z-index:5;background:var(--w-bg);display:grid;grid-template-columns:repeat(7,minmax(0,1fr));padding:2px 8px 8px;border-bottom:1px solid var(--w-line);touch-action:pan-y}
+.sd{border:0;background:none;display:grid;justify-items:center;gap:2px;padding:2px 0}
+.sd i{font-style:normal;font-size:10.5px;color:var(--w-ink2);letter-spacing:.05em;text-transform:uppercase}
+.sd b{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:16px;font-weight:500;font-variant-numeric:tabular-nums}
+.sd.today b{color:var(--w-accent);font-weight:700}
+.sd.sel b{background:var(--w-accent);color:var(--w-on);font-weight:700}
+.sd.off{opacity:.3;cursor:default}
+.sd u{text-decoration:none;font-size:9.5px;color:var(--w-ink2);height:12px;line-height:12px}
+.sd.full u{color:var(--w-bad)}
+.dayline{padding:8px 16px 4px;font-size:13px;color:var(--w-ink2);display:flex;justify-content:space-between;gap:8px}
+.rib{position:relative;margin:4px 12px 16px 0;user-select:none;-webkit-user-select:none;touch-action:pan-y}
+.hr{position:absolute;left:0;right:0;border-top:1px solid var(--w-line)}
+.hr span{position:absolute;left:0;width:52px;text-align:right;padding-right:8px;top:-8px;font-size:11.5px;color:var(--w-ink2);font-variant-numeric:tabular-nums;background:var(--w-bg)}
+.half{position:absolute;left:56px;right:0;border-top:1px dashed var(--w-line)}
+.lane{position:absolute;left:56px;right:0;top:0;bottom:0;cursor:pointer}
+.past{position:absolute;left:56px;right:0;background:repeating-linear-gradient(-45deg,transparent 0 6px,var(--w-line) 6px 7px);opacity:.9;pointer-events:none}
+.busy{position:absolute;left:58px;right:2px;border-radius:7px;background:var(--w-busy);color:var(--w-busy-ink);border-left:3px solid var(--w-busy-ink);font-size:12px;padding:3px 8px;overflow:hidden;pointer-events:none}
+.busy.cutT{border-top-left-radius:0;border-top-right-radius:0;border-top:2px dashed var(--w-busy-ink);top:0}
+.busy.cutB{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom:2px dashed var(--w-busy-ink)}
+.now{position:absolute;left:52px;right:0;height:0;border-top:2px solid var(--w-bad);pointer-events:none;z-index:3}
+.now::before{content:"";position:absolute;left:-4px;top:-5px;width:8px;height:8px;border-radius:50%;background:var(--w-bad)}
+.pick{position:absolute;left:58px;right:2px;border-radius:8px;border:2px solid var(--w-accent);background:color-mix(in srgb,var(--w-accent) 16%,transparent);padding:4px 10px;z-index:4;font-size:13px;line-height:1.3;transition:top .12s,height .12s}
+.pick b{display:block;font-size:14px}
+.pick.drag{transition:none}
+.grip{position:absolute;width:34px;height:34px;display:grid;place-items:center;touch-action:none;cursor:ns-resize;z-index:5}
+.grip::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--w-surface);border:2px solid var(--w-accent)}
+.grip.g1{right:6px;top:-17px}
+.grip.g2{left:6px;bottom:-17px}
+.tap{position:absolute;left:58px;right:2px;border-radius:7px;background:color-mix(in srgb,var(--w-accent) 22%,transparent);pointer-events:none;z-index:2}
+.lax{position:absolute;left:53px;width:5px;border-radius:3px;overflow:hidden;pointer-events:none}
+.lax i{position:absolute;left:0;right:0}
+.sunl{position:absolute;left:58px;right:0;border-top:1px dashed var(--w-accent);pointer-events:none;z-index:1}
+.sunl span{position:absolute;right:4px;top:-15px;font-size:11px;color:var(--w-accent);background:var(--w-bg);padding:0 4px;border-radius:4px}
+.dp{margin:6px 12px 2px;background:var(--w-surface);border:1px solid var(--w-line);border-radius:var(--w-r);padding:8px 12px;font-size:12.5px;display:grid;gap:4px}
+.dp .r1{display:flex;gap:12px;flex-wrap:wrap;font-variant-numeric:tabular-nums;font-size:13.5px}
+.dp .r1 b{font-weight:600}
+.dp small{color:var(--w-ink2)}
+.lg{display:flex;flex-wrap:wrap;gap:4px 10px;color:var(--w-ink2);font-size:11.5px}
+.lg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.pick small{display:block;font-size:11.5px;opacity:.85}
+.flt{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 14px 4px}
+.flt::-webkit-scrollbar{display:none}
+.flt button{flex:none;border:1px solid var(--w-line);background:var(--w-surface);border-radius:999px;padding:6px 12px;font-size:13px;white-space:nowrap}
+.flt button.on{background:var(--w-ink);border-color:var(--w-ink);color:var(--w-bg)!important}
+.flt button:disabled{opacity:.4;cursor:default}
+.wdf{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;padding:4px 14px 6px}
+.wdf button{border:1px solid var(--w-line);background:var(--w-surface);border-radius:8px;padding:5px 0;font-size:12.5px}
+.wdf button.on{background:var(--w-accent);border-color:var(--w-accent);color:var(--w-on)!important;font-weight:600}
+.cell.miss2{opacity:.25}
+.cell.hit .l{color:var(--w-accent);font-weight:600}
+.res .row .t b{font-weight:600}
+.res .row .p{color:var(--w-accent)}
+.msgr{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:12px 10px 10px}
+.mg{border:1px solid var(--w-line);background:var(--w-bg);border-radius:12px;padding:8px 2px 6px;display:grid;justify-items:center;gap:4px;font-size:11.5px;min-width:0}
+.mg svg{width:30px;height:30px;display:block}
+.mg.on{border-color:var(--w-accent);box-shadow:0 0 0 2px var(--w-accent) inset}
+.mg span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.toast{position:absolute;left:62px;right:6px;z-index:6;background:var(--w-ink);color:var(--w-bg);border-radius:10px;padding:8px 10px;font-size:12.5px;pointer-events:none}
+
+/* lists (iOS grouped) */
+.sec{padding:14px 16px 6px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--w-ink2)}
+.grp{margin:0 14px;background:var(--w-surface);border-radius:var(--w-r);border:1px solid var(--w-line);overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:11px 14px;border-top:1px solid var(--w-line);min-height:48px;width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left}
+.row:first-child{border-top:0}
+.row .t{flex:1;min-width:0}
+.row .t small{display:block;color:var(--w-ink2);font-size:12.5px}
+.row .p{color:var(--w-ink2);font-size:13.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.sw{width:46px;height:28px;border-radius:14px;background:var(--w-busy);position:relative;flex:none;transition:background .15s}
+.sw::after{content:"";position:absolute;left:2px;top:2px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .15s}
+.on>.sw{background:var(--w-ok)}
+.on>.sw::after{left:20px}
+.chev{color:var(--w-ink2);font-size:18px}
+.note{padding:6px 16px 0;font-size:12px;color:var(--w-ink2)}
+.in{border:0;background:none;width:100%;padding:0;font-size:15.5px;min-width:0;outline:none}
+.in::placeholder{color:var(--w-ink2);opacity:.7}
+.row label{width:96px;flex:none;font-size:15px}
+.miss{box-shadow:inset 3px 0 0 var(--w-bad)}
+.miss label{color:var(--w-bad)}
+.err{color:var(--w-bad);font-size:12.5px;padding:4px 16px 0}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px}
+.chips button{border:1px solid var(--w-line);background:var(--w-bg);border-radius:999px;padding:7px 12px;font-size:13.5px;font-variant-numeric:tabular-nums}
+.chips button.on{background:var(--w-accent);border-color:var(--w-accent);color:var(--w-on)}
+.check{display:flex;gap:12px;align-items:center}
+.box{width:24px;height:24px;border-radius:50%;border:2px solid var(--w-line);flex:none;display:grid;place-items:center;font-size:14px;color:var(--w-on)}
+.on .box{background:var(--w-accent);border-color:var(--w-accent)}
+.hello{margin:12px 14px 0;display:flex;align-items:center;gap:12px}
+.ava{width:44px;height:44px;border-radius:50%;background:var(--w-accent);color:var(--w-on);display:grid;place-items:center;font-weight:700;font-size:18px;flex:none}
+.hello h3{margin:0;font-family:var(--w-head);font-size:20px;font-weight:600}
+.hello small{color:var(--w-ink2)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:11px 14px;border-top:1px solid var(--w-line);font-size:15px}
+.kv:first-child{border-top:0}
+.kv span:first-child{color:var(--w-ink2)}
+.kv span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.kv.tot{font-weight:700}
+s{color:var(--w-ink2);font-weight:400;margin-right:6px}
+
+/* booking page */
+.bk{padding:6px 16px 0}
+.bk h2{margin:2px 0 6px;font-family:var(--w-head);font-size:26px;font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 11px;font-size:13px;font-weight:700}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.p-req{background:color-mix(in srgb,#d08a17 18%,transparent);color:#b07210}
+.p-ok{background:color-mix(in srgb,var(--w-ok) 18%,transparent);color:var(--w-ok)}
+.p-past{background:var(--w-busy);color:var(--w-ink2)}
+.p-cancel{background:color-mix(in srgb,var(--w-bad) 15%,transparent);color:var(--w-bad)}
+.p-noshow{background:var(--w-busy);color:var(--w-bad)}
+.money{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));text-align:center}
+.money div{padding:10px 4px;display:grid;border-left:1px solid var(--w-line)}
+.money div:first-child{border-left:0}
+.money span{font-size:11.5px;color:var(--w-ink2)}
+.money b{font-size:16px;font-variant-numeric:tabular-nums}
+.chat{display:grid;gap:6px;padding:10px 12px}
+.msg{max-width:84%;border-radius:16px;padding:7px 12px;font-size:14px}
+.msg.me{justify-self:end;background:var(--w-accent);color:var(--w-on)}
+.msg.adm{justify-self:start;background:var(--w-busy)}
+.msg.sys{justify-self:center;color:var(--w-ink2);font-size:12px;text-align:center}
+.say{display:flex;gap:8px;padding:8px 12px;border-top:1px solid var(--w-line)}
+.say input{flex:1;min-width:0;border:1px solid var(--w-line);border-radius:18px;padding:7px 12px;background:var(--w-bg)}
+.say button{border:0;background:var(--w-accent);color:var(--w-on)!important;border-radius:50%;width:34px;height:34px;font-weight:700}
+
+/* ---------------- pult ---------------- */
+.pult{display:grid;gap:14px;min-width:0}
+.pp{grid-template-columns:minmax(0,1fr);min-width:0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:10px}
+.pp h2{margin:0;font-size:15px;font-weight:700}
+.pp p{margin:0;color:var(--muted);font-size:13px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opts button{border:1px solid var(--line);background:var(--card);border-radius:9px;padding:6px 10px;font-size:13px}
+.opts button.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.opts button:disabled{opacity:.4;cursor:default}
+.lbl{font-size:12px;font-weight:600;color:var(--muted)}
+.cfg{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;font-size:13px}
+.cfg input[type=color]{width:44px;height:28px;border:1px solid var(--line);border-radius:6px;padding:0;background:none}
+.cfg select,.cfg input[type=text]{border:1px solid var(--line);border-radius:8px;padding:5px 8px;background:var(--card);min-width:0}
+.cfg input[type=range]{width:100%}
+.addsvc{display:flex;gap:6px}
+.addsvc input{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--card)}
+/* ---------------- desktop: three panes, like Calendar on a Mac ---------------- */
+.page.desk{max-width:1240px;grid-template-columns:minmax(0,1fr)}
+.page.desk .pult{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));align-items:start}
+.top.desk{max-width:1240px}
+.scr{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.scr span{color:var(--muted);font-size:13px;margin-right:2px}
+.w.dk{border-radius:16px;height:780px;display:grid;grid-template-columns:300px minmax(0,1fr) 360px;flex-direction:initial}
+.dkp{display:flex;flex-direction:column;min-width:0;min-height:0;border-left:1px solid var(--w-line);position:relative}
+.dkp:first-child{border-left:0;background:color-mix(in srgb,var(--w-surface) 55%,var(--w-bg))}
+.dkp.wide{grid-column:2 / 4}
+.dkh{display:flex;align-items:center;gap:8px;padding:14px 16px 10px;min-height:56px;border-bottom:1px solid var(--w-line)}
+.dkh h3{margin:0;font-family:var(--w-head);font-size:20px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dkh .nav{display:flex;gap:2px}
+.dkh .nav button,.dkh .tdy{border:1px solid var(--w-line);background:var(--w-surface);border-radius:8px;height:30px;min-width:30px;color:var(--w-accent);font-size:16px;padding:0 8px}
+.dkh .tdy{font-size:13px}
+.dkh .nav button:disabled{opacity:.3;cursor:default}
+.dk .wbar{border-bottom:1px solid var(--w-line);padding:10px 14px}
+.dk .dkp:first-child .mhead h2{font-size:20px}
+.dk .dkp:first-child .cell{min-height:44px;padding:3px 0 4px}
+.dk .dkp:first-child .cell .n{width:26px;height:26px;font-size:14px}
+.dk .dkp:first-child .cell .l{font-size:9.5px}
+.cell.sel .n{background:var(--w-accent);color:var(--w-on)!important;font-weight:700}
+.hl{display:grid;gap:2px;padding:10px 10px 4px}
+.hl button{border:0;background:none;border-radius:9px;padding:7px 10px;text-align:left;display:grid;grid-template-columns:10px 1fr auto;gap:2px 10px;align-items:center}
+.hl button i{width:10px;height:10px;border-radius:50%;border:2px solid var(--w-accent)}
+.hl button.on{background:var(--w-busy)}
+.hl button.on i{background:var(--w-accent)}
+.hl button b{font-weight:600;font-size:14px}
+.hl button small{grid-column:2 / 4;color:var(--w-ink2);font-size:11.5px}
+.hl button em{font-style:normal;color:var(--w-ink2);font-size:12px;font-variant-numeric:tabular-nums}
+.hlh{padding:12px 20px 0;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--w-ink2)}
+.dk .strip{padding-top:8px}
+.dk .rib{margin-right:18px}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:12px 14px 2px;font-size:11.5px;color:var(--w-ink2)}
+.steps span{padding:4px 2px 5px;text-align:center;border-bottom:2px solid var(--w-line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.steps span.on{border-bottom-color:var(--w-accent)}
+.steps span.done{border-bottom-color:color-mix(in srgb,var(--w-accent) 40%,transparent)}
+.dkp.wide .wscroll>*{max-width:760px;margin-left:auto;margin-right:auto}
+.steps span.on{color:var(--w-accent);font-weight:600}
+.steps span.done{color:var(--w-ink)}
+.card0{margin:14px;background:var(--w-surface);border:1px solid var(--w-line);border-radius:var(--w-r);padding:14px;display:grid;gap:8px;font-size:13.5px}
+.card0 h4{margin:0;font-family:var(--w-head);font-size:19px;font-weight:600}
+.card0 .kv2{display:flex;justify-content:space-between;gap:10px}
+.card0 .kv2 span:first-child{color:var(--w-ink2)}
+.hov{position:absolute;left:58px;right:2px;border-radius:7px;border:1px dashed var(--w-accent);color:var(--w-accent);font-size:12px;padding:3px 8px;pointer-events:none;z-index:2;background:color-mix(in srgb,var(--w-accent) 7%,transparent)}
+.dkwrap{min-width:0}
+.page.desk .dkwrap{overflow-x:auto;padding:2px}
+.dkwrap .w.dk{min-width:1000px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<header class="top" id="top">
+  <h1>Окно брони BroniOS</h1>
+  <p>Календарь устроен как в iOS и в Light Plan: месяц, в котором под числом написано, сколько часов свободно, затем день лентой часов. Данные тестовые: занятость выдумана, цены с сайта «Томсона».</p>
+  <div class="scr"><span>Экран:</span><div class="opts" id="oScreen"></div></div>
+</header>
+
+<div class="page" id="page">
+  <div class="dkwrap" id="wwrap"><section class="w" id="w" aria-label="Окно брони"></section></div>
+
+  <aside class="pult">
+    <div class="pp">
+      <h2>Вид окна под сайт студии</h2>
+      <div class="opts" id="presets"></div>
+      <div class="cfg">
+        <span>Акцент</span><input type="color" id="cAccent" aria-label="Цвет акцента">
+        <span>Шрифт</span><select id="cFont" aria-label="Шрифт"></select>
+        <span>Скругление</span><input type="range" id="cRad" min="4" max="20" step="1" aria-label="Скругление">
+      </div>
+      <p>Студия выбирает цвета и шрифт в админке, и окно подстраивается под любой сайт, не только на нашей платформе.</p>
+    </div>
+
+    <div class="pp">
+      <h2>Ситуация клиента</h2>
+      <span class="lbl">Откуда открыл окно</span>
+      <div class="opts" id="oEntry"></div>
+      <span class="lbl">Сколько залов в студии</span>
+      <div class="opts" id="oHalls"></div>
+      <span class="lbl">Кто открыл</span>
+      <div class="opts" id="oWho"></div>
+      <span class="lbl" id="winLbl">Окна зала</span>
+      <div class="opts" id="oWin"></div>
+      <span class="lbl">Сайт студии</span>
+      <div class="opts" id="oSite"></div>
+    </div>
+
+    <div class="pp">
+      <h2>Настройки студии</h2>
+      <span class="lbl">Предоплата</span>
+      <div class="opts" id="oPrepay"></div>
+      <span class="lbl">Часы работы для онлайн-записи</span>
+      <div class="opts" id="oHours"></div>
+      <p>Это ограничение только для клиентов. Администратор ставит бронь вручную на любое время, хоть с 6 утра до 2 ночи. Такие брони клиент видит занятыми, их край отмечен пунктиром.</p>
+      <span class="lbl">Скидка «будни до 12:00, −10%»</span>
+      <div class="opts" id="oAuto"></div>
+      <span class="lbl">Своя доп. услуга</span>
+      <div class="addsvc"><input id="newSvc" placeholder="Например, Гримёр" aria-label="Название услуги"><button id="addSvcBtn" style="border:1px solid var(--line);border-radius:9px;padding:6px 10px;background:var(--card)">Добавить</button></div>
+      <p>Промокоды для проверки: ДРУЗЬЯ (−15%) и ОСЕНЬ (−5%). Скидки не складываются: если ввели промокод, действует он.</p>
+    </div>
+
+    <div class="pp">
+      <h2>Администратор</h2>
+      <p id="aHint">Сначала забронируйте время в окне. Потом здесь можно менять статус брони и смотреть, что видит клиент.</p>
+      <div id="aRows" hidden style="display:grid;gap:8px">
+        <div class="opts" id="aStatus"></div>
+        <div class="opts" id="aMoney"></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- test data ---------- */
+var HALLS={
+  edison:{name:"Эдисон",win:225,tiers:[["1–9",1600],["10–15",1800],["16–30",2000]]},
+  sfera:{name:"Сфера",win:225,tiers:[["1–9",1500],["10–15",1700],["16–30",1900]]},
+  vegas:{name:"Вегас",win:45,tiers:[["1–5",1300],["6–10",1500],["11–15",3100],["16–30",8100]]}
+};
+var OPEN=8*60, CLOSE=23*60, // studio hours for clients (Alex: 8–23 by appointment); the admin is not limited by them
+    STEP=30, MIN=60, PX=52; // px per hour
+var SERVICES=[
+  {id:"gaffer",name:"Гаффер",sub:"помощь со светом",price:1000,unit:"h"},
+  {id:"photo",name:"Фотограф студии",sub:"съёмка и обработка",price:5500,unit:"h"},
+  {id:"pets",name:"Съёмка с животными",sub:"до 3 собак",price:500,unit:"h"},
+  {id:"clean",name:"Уборка после съёмки",sub:"цена тестовая",price:500,unit:"once"}
+];
+var GEAR=[
+  {id:"ad600",name:"Godox AD600Pro",price:200,unit:"once"},
+  {id:"amaran",name:"Aputure Amaran 300c, 2 шт",price:300,unit:"once"},
+  {id:"lp150",name:"Godox LP150R, RGB-панель",price:400,unit:"once"},
+  {id:"proj",name:"Проектор Canon LV-8320",price:500,unit:"h"},
+  {id:"instax",name:"Fujifilm Instax Wide 300",price:1000,unit:"once"}
+];
+var PROMOS={"ДРУЗЬЯ":15,"ОСЕНЬ":5};
+var MONTHS=["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
+var MONTHS_G=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+var WD=["вс","пн","вт","ср","чт","пт","сб"];
+var STATUSES=[
+  {id:"req",label:"Заявка",cls:"p-req",text:"Время уже за вами, другие видят его занятым. Администратор подтвердит бронь."},
+  {id:"ok",label:"Подтверждено",cls:"p-ok",text:"Бронь подтверждена. Ждём вас в студии."},
+  {id:"past",label:"Прошедшая бронь",cls:"p-past",text:"Съёмка прошла. Спасибо, что были у нас."},
+  {id:"cancel",label:"Отменили",cls:"p-cancel",text:"Бронь отменена, время освобождено."},
+  {id:"noshow",label:"Не пришли",cls:"p-noshow",text:"Администратор отметил, что съёмка не состоялась."}
+];
+var PRESETS={
+  tomson:{name:"Томсон",v:{bg:"#f5f1ea",surface:"#fffdf9",ink:"#17140f",ink2:"#6d655a",line:"rgba(23,20,15,.12)",accent:"#b4532a",on:"#ffffff",busy:"#e9e3d8","busy-ink":"#8a8174",bad:"#c0392b",ok:"#2f7a4a"},font:"manrope-playfair",r:12},
+  lp:{name:"Light Plan, тёмный",v:{bg:"#0f0d0b",surface:"#1b1916",ink:"#f2ede4",ink2:"#8f877c",line:"rgba(255,255,255,.09)",accent:"#e3a857",on:"#1a1408",busy:"#26231f","busy-ink":"#8f877c",bad:"#e5624f",ok:"#5fb47c"},font:"system",r:14},
+  ios:{name:"iOS, светлый",v:{bg:"#f2f2f7",surface:"#ffffff",ink:"#1c1c1e",ink2:"#8e8e93",line:"rgba(60,60,67,.14)",accent:"#ff3b30",on:"#ffffff",busy:"#e5e5ea","busy-ink":"#8e8e93",bad:"#ff3b30",ok:"#34c759"},font:"system",r:10},
+  mono:{name:"Строгий",v:{bg:"#ffffff",surface:"#ffffff",ink:"#111111",ink2:"#777777",line:"rgba(0,0,0,.12)",accent:"#111111",on:"#ffffff",busy:"#efefef","busy-ink":"#888888",bad:"#d0021b",ok:"#1e8e3e"},font:"roboto",r:4}
+};
+var FONTS={
+  "system":{name:"Системный (SF)",body:"-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif",head:"-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,sans-serif"},
+  "manrope-playfair":{name:"Playfair + Manrope",body:"'Manrope',system-ui,sans-serif",head:"'Playfair Display',Georgia,serif"},
+  "manrope":{name:"Manrope",body:"'Manrope',system-ui,sans-serif",head:"'Manrope',system-ui,sans-serif"},
+  "roboto":{name:"Roboto",body:"'Roboto',system-ui,sans-serif",head:"'Roboto',system-ui,sans-serif"},
+  "ptserif":{name:"PT Serif",body:"'PT Serif',Georgia,serif",head:"'PT Serif',Georgia,serif"}
+};
+
+/* ---------- state ---------- */
+var cfg={screen:window.innerWidth>=1100?"desk":"phone",preset:"tomson",accent:null,font:null,r:null,prepay:50,auto:true,entry:"edison",regular:false,ourSite:true};
+var S, booking=null, view="month", drag=null, toastT=null;
+function reset(){
+  var t=new Date(); t.setHours(0,0,0,0);
+  S={hall:cfg.entry==="all"?"edison":cfg.entry, month:new Date(t.getFullYear(),t.getMonth(),1), date:null, start:null, dur:MIN,
+     fSun:false, fDays:{}, fOpen:false, svc:{}, gear:{}, gearOpen:false, msgr:{}, msgrOther:"", vk:"", people:0, name:"", phone:"", email:"", social:"", agree:false, pdAgree:false, pdOpen:false, notMe:false,
+     promo:"", promoOk:null, promoMsg:"", miss:{}};
+  view="month";
+}
+reset();
+
+/* ---------- helpers ---------- */
+function ymd(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function pd(s){var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2])}
+function hm(m){return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")}
+function rub(n){return Math.round(n).toLocaleString("ru-RU").replace(/ |,/g," ")+" ₽"}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function dlong(s){var d=pd(s);return d.getDate()+" "+MONTHS_G[d.getMonth()]}
+function dur(m){var h=Math.floor(m/60),r=m%60;return (h?h+" ч":"")+(r?(h?" ":"")+r+" мин":"")}
+function hash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+/* Studio wall time: Tomsk, UTC+7, whatever the visitor's phone zone is. */
+var PLACE={name:"Томск",lat:56.4886,lon:84.9480,tz:7};
+function studioNow(){var n=new Date();return new Date(n.getTime()+(PLACE.tz*60+n.getTimezoneOffset())*60000)}
+function today(){var t=studioNow();t.setHours(0,0,0,0);return t}
+function nowMin(){var n=studioNow();return n.getHours()*60+n.getMinutes()}
+
+/* Sun: the Light Plan model (beta/index.html «СОЛНЕЧНАЯ МОДЕЛЬ (NOAA)»), carried over as is. */
+function rad(x){return x*Math.PI/180} function deg(x){return x*180/Math.PI}
+function sunDay(date){
+  var start=new Date(date.getFullYear(),0,0), doy=Math.floor((date-start)/86400000), g=2*Math.PI/365*(doy-1+0.5);
+  var decl=0.006918-0.399912*Math.cos(g)+0.070257*Math.sin(g)-0.006758*Math.cos(2*g)+0.000907*Math.sin(2*g)-0.002697*Math.cos(3*g)+0.00148*Math.sin(3*g);
+  var eq=229.18*(0.000075+0.001868*Math.cos(g)-0.032077*Math.sin(g)-0.014615*Math.cos(2*g)-0.040849*Math.sin(2*g));
+  var noon=720-4*PLACE.lon-eq+PLACE.tz*60, L=rad(PLACE.lat);
+  function elev(t){var ha=rad((t-noon)*0.25);return deg(Math.asin(Math.max(-1,Math.min(1,Math.sin(L)*Math.sin(decl)+Math.cos(L)*Math.cos(decl)*Math.cos(ha)))))}
+  function az(t){var ha=rad((t-noon)*0.25);return (deg(Math.atan2(Math.sin(ha),Math.cos(ha)*Math.sin(L)-Math.tan(decl)*Math.cos(L)))+180+360)%360}
+  function at(h,rising){var c=(Math.sin(rad(h))-Math.sin(L)*Math.sin(decl))/(Math.cos(L)*Math.cos(decl));if(c>1||c<-1)return null;var ha=deg(Math.acos(c));return noon+(rising?-ha*4:ha*4)}
+  return {elev:elev,az:az,rise:at(-0.833,true),set:at(-0.833,false),goldA:at(6,true),goldB:at(6,false)};
+}
+/* New rule on top of the model (not in Light Plan): what the hall's windows let in. */
+var LIGHT={
+  direct:{c:"#f2c14e",w:"прямое солнце в окна"},
+  low:{c:"#e8853d",w:"закатное солнце в окна"},
+  soft:{c:"#c9d3dc",w:"рассеянный дневной"},
+  gold:{c:"#f0d9a8",w:"мягкий низкий свет"},
+  dusk:{c:"#5b6f9a",w:"сумерки"},
+  dark:{c:"#2a2f45",w:"темно"},
+  studio:{c:"#9aa0a6",w:"студийный свет"}
+};
+function lightAt(sun,t,win){
+  var e=sun.elev(t);
+  if(e<-6) return "dark"; if(e<-0.833) return "dusk";
+  if(win===null) return e<6?"gold":"soft";
+  var d=Math.abs(((sun.az(t)-win)+540)%360-180);
+  if(d<75) return e<6?"low":"direct";
+  return e<6?"gold":"soft";
+}
+function hallWin(){return HALLS[S.hall].win}
+function hrs(n){return String(n).replace(".",",")+" ч"}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+function busyFor(hall,date){
+  var h=hash(hall+date),out=[],n=1+(h%4);
+  if(h%11===0) return [[OPEN,CLOSE]]; // a fully booked day now and then
+  for(var i=0;i<n;i++){
+    h=Math.imul(h^(h>>>13),1103515245)>>>0;
+    var s=OPEN+((h%24)*STEP), len=MIN+((h>>>8)%6)*STEP;
+    out.push([s,Math.min(s+len,CLOSE)]);
+  }
+  // bookings the admin put outside client hours: an early shoot from 6:00, a night one until 2:00
+  var g=hash(date+hall+"adm");
+  if(g%5===0) out.push([6*60,OPEN+90]);
+  if(g%7===1) out.push([CLOSE-60,26*60]);
+  if(booking&&booking.hall===hall&&booking.date===date&&booking.status!=="cancel") out.push([booking.start,booking.start+booking.dur]);
+  return mergeR(out);
+}
+function mergeR(a){a.sort(function(x,y){return x[0]-y[0]});var o=[];a.forEach(function(r){var l=o[o.length-1];if(l&&r[0]<=l[1])l[1]=Math.max(l[1],r[1]);else o.push(r.slice())});return o}
+function pastLimit(date){return date===ymd(today())?Math.ceil(nowMin()/STEP)*STEP:(pd(date)<today()?CLOSE:0)}
+function cellFree(hall,date,t){
+  if(t<pastLimit(date)) return false;
+  var b=busyFor(hall,date);for(var i=0;i<b.length;i++) if(t>=b[i][0]&&t<b[i][1]) return false;
+  return true;
+}
+function rangeFree(hall,date,a,b){if(a<OPEN||b>CLOSE)return false;for(var t=a;t<b;t+=STEP) if(!cellFree(hall,date,t)) return false;return true}
+function freeHours(hall,date){var c=0;for(var t=OPEN;t<CLOSE;t+=STEP) if(cellFree(hall,date,t)) c++;return c/2}
+
+function hallPrice(){return HALLS[S.hall].tiers[Math.min(S.people,HALLS[S.hall].tiers.length-1)][1]}
+function extras(){
+  var out=[];
+  SERVICES.concat(GEAR).forEach(function(x){ if(S.svc[x.id]||S.gear[x.id]) out.push({name:x.name,sum:x.unit==="h"?x.price*S.dur/60:x.price}) });
+  return out;
+}
+function price(){
+  var hall=hallPrice()*S.dur/60, ex=extras().reduce(function(a,x){return a+x.sum},0), base=hall+ex;
+  var d=pd(S.date).getDay(), autoOn=cfg.auto&&d>=1&&d<=5&&S.start<12*60, disc=null;
+  if(S.promoOk) disc={label:"промокод "+S.promoOk,pct:PROMOS[S.promoOk],autoSkipped:autoOn};
+  else if(autoOn) disc={label:"будни до 12:00",pct:10};
+  var total=disc?Math.round(base*(100-disc.pct)/100):base;
+  return {hall:hall,ex:ex,base:base,disc:disc,total:total,prepay:cfg.prepay?Math.round(total*cfg.prepay/100):0};
+}
+
+/* ---------- theme ---------- */
+var W=document.getElementById("w");
+function applyTheme(){
+  var p=PRESETS[cfg.preset], v=Object.assign({},p.v);
+  if(cfg.accent) v.accent=cfg.accent;
+  Object.keys(v).forEach(function(k){W.style.setProperty("--w-"+k,v[k])});
+  var f=FONTS[cfg.font||p.font];
+  W.style.setProperty("--w-font",f.body); W.style.setProperty("--w-head",f.head);
+  W.style.setProperty("--w-r",(cfg.r||p.r)+"px");
+  W.style.colorScheme = cfg.preset==="lp"?"dark":"light";
+  document.getElementById("cAccent").value=v.accent;
+  document.getElementById("cFont").value=cfg.font||p.font;
+  document.getElementById("cRad").value=cfg.r||p.r;
+}
+
+/* ---------- render ---------- */
+function desk(){return cfg.screen==="desk"}
+function firstFree(){var d=today();for(var i=0;i<92;i++){var k=ymd(d);if(freeHours(S.hall,k)>0)return k;d.setDate(d.getDate()+1)}return ymd(today())}
+/* Desktop: hall list + month on the left, the chosen day as an hour ribbon in the middle, the booking steps on the right.
+   Same pieces as the phone (monthBody, dayBody, vExtra, vWho, vSum), only laid side by side. */
+function deskLeft(){
+  var h='<div class="dkp">';
+  h+='<div class="dkh"><h3>'+(cfg.entry==="all"?"Онлайн-бронь":"Зал «"+HALLS[S.hall].name+"»")+'</h3></div><div class="wscroll">'+(regularOn()?'<div style="height:10px"></div>'+greet():'');
+  if(booking&&booking.status!=="cancel") h+='<button class="mine" style="margin-top:10px" data-a="openBk"><span>Ваша бронь: '+HALLS[booking.hall].name+', '+dlong(booking.date)+', '+hm(booking.start)+'</span><b>Открыть ›</b></button>';
+  if(cfg.entry==="all"){
+    h+='<div class="hlh">Залы</div><div class="hl">'+Object.keys(HALLS).map(function(k){var x=HALLS[k];return '<button data-a="hall" data-v="'+k+'" class="'+(S.hall===k?"on":"")+'"><i></i><b>'+x.name+'</b><em>от '+rub(x.tiers[0][1])+'/ч</em><small>'+winWord(x.win)+' · до '+x.tiers[x.tiers.length-1][0].split("–")[1]+' чел.</small></button>'}).join("")+'</div>';
+  }
+  h+='<div class="hlh" style="padding-bottom:6px">Подобрать</div>'+filterBar();
+  h+=monthBody()+'</div></div>';
+  return h;
+}
+function deskCenter(){
+  var d=pd(S.date), wk=weekOf(S.date), t=today(), canBack=wk[0]>t;
+  var h='<div class="dkp"><div class="dkh"><h3>'+cap(["воскресенье","понедельник","вторник","среда","четверг","пятница","суббота"][d.getDay()])+', '+dlong(S.date)+'</h3>'+
+    '<button class="tdy" data-a="date" data-v="'+ymd(t)+'">Сегодня</button><div class="nav"><button data-a="wk" data-v="-1" aria-label="Предыдущая неделя"'+(canBack?'':' disabled')+'>‹</button><button data-a="wk" data-v="1" aria-label="Следующая неделя">›</button></div></div>';
+  h+='<div class="wscroll" id="dscroll">'+dayBody()+'</div></div>';
+  return h;
+}
+function deskSteps(){
+  var order=["day","extra","who","sum"], names=["Время","Дополнения","Лич. инф.","Итог"], cur=order.indexOf(view);
+  return '<div class="steps">'+names.map(function(n,i){return '<span class="'+(i===cur?"on":i<cur?"done":"")+'">'+n+'</span>'}).join("")+'</div>';
+}
+function deskRight(){
+  if(view==="extra"||view==="who"||view==="sum") return '<div class="dkp">'+(view==="extra"?vExtra():view==="who"?vWho():vSum()).replace('<div class="wscroll">','<div class="wscroll">'+deskSteps())+'</div>';
+  var x=HALLS[S.hall], h='<div class="dkp"><div class="dkh"><h3>Ваше время</h3></div><div class="wscroll">'+deskSteps();
+  h+='<div class="card0"><h4>'+x.name+'</h4>';
+  h+='<div class="kv2"><span>День</span><span>'+WD[pd(S.date).getDay()]+', '+dlong(S.date)+'</span></div>';
+  h+='<div class="kv2"><span>Время</span><span id="dkT">'+(S.start===null?"не выбрано":hm(S.start)+'–'+hm(S.start+S.dur)+', '+dur(S.dur))+'</span></div>';
+  h+='<div class="kv2"><span>Свет</span><span id="dkL" style="text-align:right">'+(S.start===null?winWord(x.win):pickLight())+'</span></div>';
+  h+='<div class="kv2"><span>Цена зала</span><span>'+x.tiers.map(function(t){return t[0]+' чел. — '+rub(t[1])}).join('<br>')+'</span></div></div>';
+  h+='<div class="note" style="padding-top:0">Наведите мышь на ленту часов: рамка покажет час, который займёт клик. Потом рамку можно растянуть за кружки.</div>';
+  h+='</div><div class="wfoot" id="dfoot">'+dayFoot()+'</div></div>';
+  return h;
+}
+function renderDesk(){
+  if(!S.date||view==="month"){ if(!S.date) S.date=firstFree(); if(view==="month") view="day"; }
+  var keep={}; W.querySelectorAll(".dkp").forEach(function(p,i){var sc=p.querySelector(".wscroll"); if(sc) keep[i+(i===2?view:"")]=sc.scrollTop});
+  var h=deskLeft()+(S.chk?chkSheet():"");
+  if(view==="booking"||view==="lookup") h+='<div class="dkp wide">'+(view==="booking"?vBooking():vLookup())+'</div>';
+  else h+=deskCenter()+deskRight();
+  var dayChanged=W.dataset.day!==S.hall+S.date;
+  W.innerHTML=h; W.dataset.view=view; W.dataset.day=S.hall+S.date;
+  W.querySelectorAll(".dkp").forEach(function(p,i){var sc=p.querySelector(".wscroll"),k=i+(i===2?view:""); if(sc&&keep[k]!==undefined&&!(i===1&&dayChanged)) sc.scrollTop=keep[k]});
+  if(dayChanged&&document.getElementById("dscroll")) scrollDay();
+  renderPult();
+}
+function render(){
+  W.classList.toggle("dk",desk());
+  document.getElementById("page").classList.toggle("desk",desk()); document.getElementById("top").classList.toggle("desk",desk());
+  if(desk()) return renderDesk();
+  W.dataset.day="";
+  var h="";
+  if(view==="month") h=vMonth();
+  else if(view==="day") h=vDay();
+  else if(view==="extra") h=vExtra();
+  else if(view==="who") h=vWho();
+  else if(view==="sum") h=vSum();
+  else if(view==="booking") h=vBooking();
+  else if(view==="lookup") h=vLookup();
+  var sc=W.querySelector(".wscroll"), keep=sc&&W.dataset.view===view?sc.scrollTop:null;
+  if(S.sheet&&view==="month") h+=hallSheet();
+  if(S.chk) h+=chkSheet();
+  W.innerHTML=h; W.dataset.view=view;
+  var hs=document.getElementById("hscroll"); if(hs) carousel(hs);
+  sc=W.querySelector(".wscroll");
+  if(sc&&keep!==null) sc.scrollTop=keep;
+  if(view==="day"&&keep===null) scrollDay();
+  renderPult();
+}
+function bar(back,title){return '<div class="wbar">'+(back?'<button class="back" data-a="'+back[0]+'"><b>‹</b>'+back[1]+'</button>':'<span class="sp"></span>')+'<div class="ttl">'+title+'</div><span class="sp"></span></div>'}
+
+function hallPicker(){
+  var keys=Object.keys(HALLS);
+  if(keys.length<=3) return '<div class="seg" role="tablist">'+keys.map(function(k){return '<button data-a="hall" data-v="'+k+'" class="'+(S.hall===k?"on":"")+'" role="tab" aria-selected="'+(S.hall===k)+'">'+HALLS[k].name+'</button>'}).join("")+'</div>';
+  // carousel: the list is drawn three times and the scroll is kept in the middle copy, so it runs in a circle
+  var one=keys.map(function(k){return '<button data-a="hall" data-v="'+k+'" class="'+(S.hall===k?"on":"")+'">'+HALLS[k].name+'</button>'}).join("");
+  return '<div class="hrow"><div class="hscroll" id="hscroll">'+one+one+one+'</div><button class="hall-all" data-a="hallList" aria-label="Все залы списком">Все '+keys.length+' ▾</button></div>';
+}
+function carousel(hs){
+  var n=Object.keys(HALLS).length, btns=hs.children, w=btns[n].offsetLeft-btns[0].offsetLeft;
+  var on=btns[n+Object.keys(HALLS).indexOf(S.hall)];
+  hs.scrollLeft=on.offsetLeft-hs.offsetLeft-(hs.clientWidth-on.offsetWidth)/2;
+  // the hall nearest the centre snaps into place (CSS scroll-snap, one hall per flick);
+  // once the ribbon has settled, it is moved by one copy so the circle never ends
+  // the hall under the centre is the chosen one (Alex, 07.10): while the ribbon moves it gets a frame,
+  // when it stops that hall is selected and the month below redraws for it
+  var t=null;
+  function mid(){var c=hs.getBoundingClientRect(),x=c.left+c.width/2,best=null,bd=1e9;
+    for(var i=0;i<btns.length;i++){var r=btns[i].getBoundingClientRect(),d=Math.abs(r.left+r.width/2-x);if(d<bd){bd=d;best=btns[i]}}return best}
+  function mark(){var m=mid();for(var i=0;i<btns.length;i++)btns[i].classList.toggle("mid",btns[i]===m)}
+  function settle(){
+    if(!hs.isConnected) return; // a redraw replaced this ribbon
+    if(hs.scrollLeft<w*0.5) hs.scrollLeft+=w; else if(hs.scrollLeft>w*1.5) hs.scrollLeft-=w;
+    var m=mid(); if(m&&m.dataset.v!==S.hall){S.hall=m.dataset.v;S.start=null;if(!sunOk())S.fSun=false;render()}
+  }
+  hs.addEventListener("scroll",function(){mark();clearTimeout(t);t=setTimeout(settle,140)},{passive:true});
+  if("onscrollend" in hs) hs.addEventListener("scrollend",settle);
+}
+/* «Подобрать»: client filters on top of the month — sun in the windows, chosen weekdays. */
+function fOn(){return S.fSun||Object.keys(S.fDays).some(function(k){return S.fDays[k]})}
+function sunOk(){var w=hallWin();return w!=="none"&&w!==null}
+function spansFor(k){
+  var d=pd(k); if(Object.keys(S.fDays).some(function(x){return S.fDays[x]})&&!S.fDays[d.getDay()]) return null;
+  var sun=S.fSun?sunDay(d):null, w=hallWin(), out=[], a=null;
+  for(var t=OPEN;t<=CLOSE;t+=STEP){
+    var ok=t<CLOSE&&cellFree(S.hall,k,t);
+    if(ok&&sun){var L=lightAt(sun,t+15,w); ok=L==="direct"||L==="low"}
+    if(ok&&a===null)a=t; if(!ok&&a!==null){if(t-a>=MIN)out.push([a,t]);a=null}
+  }
+  return out.length?out:null;
+}
+function filterBar(){
+  var nd=Object.keys(S.fDays).filter(function(k){return S.fDays[k]}).length;
+  var h='<div class="flt"><button data-a="fSun" class="'+(S.fSun?"on":"")+'"'+(sunOk()?'':' disabled title="У этого зала не указаны окна"')+'>☀ Солнце в окнах</button><button data-a="fOpen" class="'+(nd?"on":"")+'">'+(nd?"Дни: "+[1,2,3,4,5,6,0].filter(function(x){return S.fDays[x]}).map(function(x){return WD[x]}).join(", "):"Дни недели ▾")+'</button>'+(fOn()?'<button data-a="fReset">Сбросить</button>':'')+'</div>';
+  if(S.fOpen) h+='<div class="wdf">'+[1,2,3,4,5,6,0].map(function(x){return '<button data-a="fDay" data-v="'+x+'" class="'+(S.fDays[x]?"on":"")+'">'+WD[x]+'</button>'}).join("")+'</div>';
+  if(!sunOk()) h+='<div class="note" style="padding:0 16px 4px">'+(hallWin()==="none"?"В зале «"+HALLS[S.hall].name+"» нет окон, поиск по солнцу не нужен.":"У зала «"+HALLS[S.hall].name+"» не указаны окна, поэтому поиск по солнцу недоступен.")+'</div>';
+  return h;
+}
+function results(){
+  var t=today(), end=new Date(t.getFullYear(),t.getMonth()+3,0), rows=[];
+  for(var d=new Date(t);d<=end;d.setDate(d.getDate()+1)){var k=ymd(d),sp=spansFor(k);if(sp)rows.push([k,sp])}
+  var h='<div class="sec">'+(rows.length?'Подходит дней: '+rows.length+' до конца '+MONTHS_G[end.getMonth()]:'Ничего не нашлось')+'</div>';
+  if(!rows.length) return h+'<div class="note">Попробуйте убрать один из фильтров.</div>';
+  h+='<div class="grp res">'+rows.slice(0,40).map(function(r){var d=pd(r[0]);return '<button class="row" data-a="fGo" data-v="'+r[0]+'" data-s="'+r[1][0][0]+'"><span class="t"><b>'+WD[d.getDay()]+', '+dlong(r[0])+'</b><small>'+r[1].map(function(x){return hm(x[0])+'–'+hm(x[1])}).join(", ")+'</small></span><span class="p">'+(S.fSun?"☀":"")+'</span><span class="chev">›</span></button>'}).join("")+'</div>';
+  return h;
+}
+function hallSheet(){
+  return '<div class="sheet" data-a="sheetClose"><div class="in2" role="dialog" aria-label="Выбор зала"><div class="grab"></div><div class="sec" style="padding-top:2px">Залы студии</div><div class="grp">'+Object.keys(HALLS).map(function(k){var x=HALLS[k];return '<button class="row" data-a="hallPick" data-v="'+k+'"><span class="t">'+x.name+'<small>'+x.tiers.map(function(t){return t[0]}).join(" · ")+' чел. · от '+rub(x.tiers[0][1])+'/ч</small></span><span class="chk">'+(S.hall===k?"✓":"")+'</span></button>'}).join("")+'</div></div></div>';
+}
+function greet(){
+  if(!regularOn()) return "";
+  return '<div class="greet"><span>Здравствуйте, Анна!</span><button data-a="chk">Не вы?</button></div>';
+}
+/* «Не вы?» → check the saved data. Phone and mail are half hidden: if it is someone else on this phone, they must not read Anna's contacts. */
+function chkSheet(){
+  return '<div class="sheet" data-a="chkClose"><div class="in2" role="dialog" aria-label="Проверьте личные данные"><div class="grab"></div>'+
+    '<div class="sec" style="padding-top:2px">Проверьте личные данные</div><div class="grp">'+
+    '<div class="kv"><span>Имя</span><span>Анна</span></div><div class="kv"><span>Телефон</span><span>+7 900 •••-••-00</span></div><div class="kv"><span>Почта</span><span>an•••@example.ru</span></div><div class="kv"><span>Связь</span><span>Telegram, WhatsApp</span></div></div>'+
+    '<div class="note">Эти данные запомнил браузер на этом устройстве после прошлой брони.</div>'+
+    '<div class="chkb"><button class="go" data-a="chkYes">Да, это я</button><button class="go ghost" data-a="chkEdit">Изменить данные</button><button class="go ghost" data-a="notMe">Это не я, ввести свои</button></div></div></div>';
+}
+function vMonth(){
+  var m=S.month, t=today(), h=bar(null,cfg.entry==="all"?"Онлайн-бронь":"Бронь зала «"+HALLS[S.hall].name+"»");
+  if(booking&&booking.status!=="cancel") h+='<button class="mine" data-a="openBk"><span>Ваша бронь: '+HALLS[booking.hall].name+', '+dlong(booking.date)+', '+hm(booking.start)+'</span><b>Открыть ›</b></button>';
+  h+=greet();
+  if(cfg.entry==="all") h+=hallPicker();
+  h+=filterBar();
+  return h+'<div class="wscroll">'+monthBody()+'</div>';
+}
+function monthBody(){
+  var m=S.month, t=today(), h="";
+  var first=t.getFullYear()*12+t.getMonth(), cur=m.getFullYear()*12+m.getMonth();
+  h+='<div class="mhead"><h2>'+cap(MONTHS[m.getMonth()])+(m.getFullYear()!==t.getFullYear()?' '+m.getFullYear():'')+'</h2><div class="nav"><button data-a="mon" data-v="-1" aria-label="Предыдущий месяц"'+(cur<=first?" disabled":"")+'>‹</button><button data-a="mon" data-v="1" aria-label="Следующий месяц"'+(cur>=first+2?" disabled":"")+'>›</button></div></div>';
+  h+='<div class="wd">'+["пн","вт","ср","чт","пт","сб","вс"].map(function(x){return '<span>'+x+'</span>'}).join("")+'</div><div class="mgrid" id="mgrid">';
+  var start=new Date(m); start.setDate(1-((m.getDay()+6)%7));
+  for(var i=0;i<42;i++){
+    var d=new Date(start); d.setDate(start.getDate()+i);
+    if(i===35&&d.getMonth()!==m.getMonth()) break;
+    var k=ymd(d), out=d.getMonth()!==m.getMonth(), past=d<t, fh=past?0:freeHours(S.hall,k);
+    var cls="cell"+(desk()&&k===S.date?" sel":"")+(out?" out":"")+(past?" off":"")+(k===ymd(t)?" today":"")+(!past&&fh===0?" full":"")+(!past&&fh>0&&fh<3?" few":"");
+    var lab=past?"":fh===0?"занято":hrs(fh);
+    if(fOn()&&!past){var sp=spansFor(k); if(sp===null){cls+=" miss2";lab=""} else {cls+=" hit";lab=(S.fSun?"☀ ":"")+hrs(sp.reduce(function(a,x){return a+(x[1]-x[0])},0)/60)}}
+    h+='<button class="'+cls+'" data-a="date" data-v="'+k+'"'+(past?" disabled":"")+'><span class="n">'+d.getDate()+'</span><span class="l">'+lab+'</span></button>';
+  }
+  h+='</div><div class="legend">'+(fOn()?'Под числом — сколько часов подходит'+(S.fSun?', ☀ — солнце в окнах':'')+'.':'Под числом — сколько часов зал свободен в этот день.')+'</div>';
+  if(fOn()) h+=results();
+  h+='<button class="link" data-a="lookup">У меня уже есть бронь</button>';
+  return h;
+}
+
+function weekOf(date){var d=pd(date),s=new Date(d);s.setDate(d.getDate()-((d.getDay()+6)%7));var a=[];for(var i=0;i<7;i++){var x=new Date(s);x.setDate(s.getDate()+i);a.push(x)}return a}
+function vDay(){
+  var d=pd(S.date), t=today();
+  var h=bar(["toMonth",cap(MONTHS[d.getMonth()])], WD[d.getDay()]+", "+dlong(S.date));
+  h+='<div class="wscroll" id="dscroll">'+dayBody()+'</div>';
+  h+='<div class="wfoot" id="dfoot">'+dayFoot()+'</div>';
+  return h;
+}
+function dayBody(){
+  var d=pd(S.date), t=today(), h='<div class="strip" id="strip">';
+  weekOf(S.date).forEach(function(x){
+    var k=ymd(x), past=x<t, fh=past?0:freeHours(S.hall,k);
+    h+='<button class="sd'+(k===S.date?" sel":"")+(k===ymd(t)?" today":"")+(past?" off":"")+(!past&&fh===0?" full":"")+'" data-a="date" data-v="'+k+'"'+(past?" disabled":"")+'><i>'+WD[x.getDay()]+'</i><b>'+x.getDate()+'</b><u>'+(past?"":fh===0?"занято":hrs(fh))+'</u></button>';
+  });
+  h+='</div>';
+  var fh=freeHours(S.hall,S.date);
+  h+='<div class="dayline"><span>'+HALLS[S.hall].name+' · '+(fh?'свободно '+hrs(fh):'всё занято')+'</span><span>от '+rub(HALLS[S.hall].tiers[0][1])+'/ч</span></div>';
+  h+=dayPanel();
+  var H=(CLOSE-OPEN)/60*PX;
+  h+='<div class="rib" id="rib" style="height:'+(H+10)+'px">';
+  for(var m=OPEN;m<=CLOSE;m+=60){var y=(m-OPEN)/60*PX;h+='<div class="hr" style="top:'+y+'px"><span>'+hm(m)+'</span></div>';if(m<CLOSE)h+='<div class="half" style="top:'+(y+PX/2)+'px"></div>'}
+  h+=lightAxis();
+  var pl=pastLimit(S.date); if(pl>OPEN) h+='<div class="past" style="top:0;height:'+((Math.min(pl,CLOSE)-OPEN)/60*PX)+'px"></div>';
+  busyFor(S.hall,S.date).forEach(function(b){
+    if(booking&&booking.hall===S.hall&&booking.date===S.date&&b[0]<=booking.start&&b[1]>=booking.start+booking.dur&&booking.status!=="cancel"){}
+    // what already happened today is not shown: past hours are just hatched, with no other people's bookings in them
+    var a0=Math.max(b[0],OPEN,pl), b0=Math.min(b[1],CLOSE); if(b0<=a0) return;
+    var gone=a0>b[0]&&a0===pl;
+    h+='<div class="busy'+(b[0]<OPEN&&!gone?" cutT":"")+(b[1]>CLOSE?" cutB":"")+'" style="top:'+((a0-OPEN)/60*PX+1)+'px;height:'+((b0-a0)/60*PX-2)+'px">'+(gone?'Занято до '+hm(b[1]%1440):'Занято · '+hm(b[0])+'–'+hm(b[1]%1440))+'</div>';
+  });
+  if(S.date===ymd(t)&&nowMin()>OPEN&&nowMin()<CLOSE) h+='<div class="now" style="top:'+((nowMin()-OPEN)/60*PX)+'px"></div>';
+  h+='<div class="lane" data-a="lane"></div>';
+  if(S.start!==null) h+=pickHtml();
+  h+='</div>';
+  return h;
+}
+function winWord(w){return w==="none"?"окон нет":w===null?"окна не указаны":"окна на "+["север","северо-восток","восток","юго-восток","юг","юго-запад","запад","северо-запад"][Math.round(w/45)%8]}
+function dayPanel(){
+  var sun=sunDay(pd(S.date)), w=hallWin(), h='<div class="dp"><div class="r1"><span>Восход <b>'+hm(Math.round(sun.rise))+'</b></span><span>Закат <b>'+hm(Math.round(sun.set))+'</b></span><span>Золотой час <b>'+hm(Math.round(sun.goldB))+'–'+hm(Math.round(sun.set))+'</b></span></div>';
+  if(w==="none") h+='<small>'+HALLS[S.hall].name+': окон нет, студийный свет весь день.</small>';
+  else {
+    var spans=directSpans(sun,w);
+    h+='<small>'+HALLS[S.hall].name+', '+winWord(w)+(w===null?'. Пока показываем свет на улице.':spans?'. Прямое солнце в окна '+spans+'.':'. Прямого солнца в окнах сегодня нет, свет рассеянный.')+'</small>';
+    h+='<div class="lg">'+(w===null?["gold","soft","dusk"]:["direct","low","soft","dusk"]).map(function(k){return '<span><i style="background:'+LIGHT[k].c+'"></i>'+LIGHT[k].w+'</span>'}).join("")+'</div>';
+  }
+  var far=(pd(S.date)-today())/86400000>5;
+  h+='<small>Онлайн-запись '+hm(OPEN)+'–'+hm(CLOSE)+'. Нужно раньше или позже — напишите администратору, он поставит бронь сам.</small>';
+  h+='<small>Время Томска. '+(far?'Облачность на эту дату ещё неизвестна: подсказка только по положению солнца.':'Облачность пока не учтена в макете.')+'</small></div>';
+  return h;
+}
+function directSpans(sun,w){var out=[],a=null;for(var t=0;t<=1440;t+=5){var k=lightAt(sun,t,w),on=k==="direct"||k==="low";if(on&&a===null)a=t;if(!on&&a!==null){out.push(hm(a)+'–'+hm(t));a=null}}return out.join(", ")}
+function lightAxis(){
+  var w=hallWin(); if(w==="none") return '<div class="lax" style="top:0;height:'+((CLOSE-OPEN)/60*PX)+'px;background:'+LIGHT.studio.c+'"></div>';
+  var sun=sunDay(pd(S.date)), h='<div class="lax" style="top:0;height:'+((CLOSE-OPEN)/60*PX)+'px">';
+  for(var t=OPEN;t<CLOSE;t+=10) h+='<i style="top:'+((t-OPEN)/60*PX)+'px;height:'+(10/60*PX+0.5)+'px;background:'+LIGHT[lightAt(sun,t+5,w)].c+'"></i>';
+  h+='</div>';
+  [["восход",sun.rise],["закат",sun.set]].forEach(function(x){if(x[1]>OPEN&&x[1]<CLOSE)h+='<div class="sunl" style="top:'+((x[1]-OPEN)/60*PX)+'px"><span>'+x[0]+' '+hm(Math.round(x[1]))+'</span></div>'});
+  return h;
+}
+function pickLight(){
+  var w=hallWin(); if(w==="none") return "студийный свет";
+  var sun=sunDay(pd(S.date)), seen=[];
+  for(var t=S.start;t<S.start+S.dur;t+=10){var k=lightAt(sun,t+5,w); if(seen[seen.length-1]!==k) seen.push(k)}
+  return seen.map(function(k){return LIGHT[k].w}).join(" → ");
+}
+function pickHtml(){
+  return '<div class="pick" id="pick" style="top:'+((S.start-OPEN)/60*PX)+'px;height:'+(S.dur/60*PX)+'px"><b>Ваше время</b><span id="pickT">'+hm(S.start)+'–'+hm(S.start+S.dur)+'</span><small id="pickL">'+pickLight()+'</small>'+
+    '<span class="grip g1" data-g="start" aria-label="Потянуть начало"></span><span class="grip g2" data-g="end" aria-label="Потянуть конец"></span></div>';
+}
+function dkSync(){var a=document.getElementById("dkT"),b=document.getElementById("dkL");if(a&&S.start!==null){a.textContent=hm(S.start)+'–'+hm(S.start+S.dur)+', '+dur(S.dur);b.textContent=pickLight()}}
+function dayFoot(){
+  setTimeout(dkSync,0);
+  if(S.start===null) return '<div class="hint">Нажмите на свободный час: верх строки — ровно, низ — с половиной. Минимум 1 час.</div>';
+  var p=HALLS[S.hall].tiers[0][1]*S.dur/60;
+  return '<div class="frow"><b>'+hm(S.start)+'–'+hm(S.start+S.dur)+' · '+rub(p)+'</b><span>'+dur(S.dur)+'</span></div>'+
+    '<div class="hint" style="text-align:left">Чтобы изменить время, потяните за кружки на рамке.</div><button class="go" data-a="toExtra">Дальше</button>';
+}
+function scrollDay(){
+  var sc=document.getElementById("dscroll"); if(!sc) return;
+  var target=S.start!==null?S.start-60:Math.max(OPEN,pastLimit(S.date)-60);
+  sc.scrollTop=Math.max(0,(target-OPEN)/60*PX);
+}
+
+function vExtra(){
+  var h=bar(["toDay","Время"],"Добавить к брони")+'<div class="wscroll">';
+  h+='<div class="sec">Услуги</div><div class="grp">';
+  SERVICES.forEach(function(x){h+='<button class="row'+(S.svc[x.id]?" on":"")+'" data-a="svc" data-v="'+x.id+'" role="switch" aria-checked="'+!!S.svc[x.id]+'"><span class="t">'+esc(x.name)+'<small>'+esc(x.sub)+'</small></span><span class="p">'+rub(x.price)+(x.unit==="h"?"/ч":"")+'</span><span class="sw"></span></button>'});
+  h+='</div><div class="note">'+(cfg.ourSite?"Список и цены — с сайта студии: студия правит их в одном месте.":"Сайт студии не на нашей платформе, поэтому список услуг студия ведёт в админке BroniOS.")+'</div>';
+  h+='<div class="sec">Свет и оборудование</div><div class="grp">';
+  var n=Object.keys(S.gear).filter(function(k){return S.gear[k]}).length;
+  h+='<button class="row" data-a="gearOpen"><span class="t">'+(S.gearOpen?"Свернуть список":"Показать "+GEAR.length+" позиций")+(n?'<small>выбрано: '+n+'</small>':'')+'</span><span class="chev">'+(S.gearOpen?"⌃":"›")+'</span></button>';
+  if(S.gearOpen) GEAR.forEach(function(x){h+='<button class="row'+(S.gear[x.id]?" on":"")+'" data-a="gear" data-v="'+x.id+'" role="switch" aria-checked="'+!!S.gear[x.id]+'"><span class="t">'+esc(x.name)+'</span><span class="p">'+rub(x.price)+(x.unit==="h"?"/ч":"")+'</span><span class="sw"></span></button>'});
+  h+='</div><div style="height:16px"></div></div>';
+  var p=price();
+  h+='<div class="wfoot"><div class="frow"><b>'+rub(p.base)+'</b><span>'+(p.ex?'зал '+rub(p.hall)+' + '+rub(p.ex):'только зал, '+dur(S.dur))+'</span></div><button class="go" data-a="toWho">'+(p.ex?"Дальше":"Без дополнений, дальше")+'</button></div>';
+  return h;
+}
+
+function regularOn(){return cfg.regular&&!S.notMe}
+
+/* Messenger buttons. Badges are simplified marks in each service's colour, drawn here (no external images). */
+var MSGR=[
+  {id:"tg",name:"Telegram",svg:'<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#2AABEE"/><path d="M8 15.6l13.4-5.3c.7-.3 1.3.2 1.1 1.2l-2.3 10.6c-.2.8-.7 1-1.3.6l-3.5-2.6-1.7 1.6c-.2.2-.4.3-.7.3l.3-3.6 6.5-5.9c.3-.3-.1-.4-.4-.2l-8 5.1-3.5-1.1c-.8-.2-.8-.7.1-.7z" fill="#fff"/></svg>'},
+  {id:"wa",name:"WhatsApp",svg:'<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#25D366"/><path d="M16 7.5a8.4 8.4 0 0 0-7.2 12.8L7.6 24.5l4.3-1.1A8.4 8.4 0 1 0 16 7.5z" fill="none" stroke="#fff" stroke-width="1.8"/><path d="M13.2 12.4c.2-.4.4-.4.7-.4h.5c.2 0 .4.1.5.4l.7 1.6c.1.2 0 .4-.1.6l-.5.6c-.1.1-.1.3 0 .5.6 1 1.4 1.8 2.5 2.3.2.1.4.1.5-.1l.6-.7c.1-.2.4-.2.6-.1l1.6.8c.2.1.3.3.3.5 0 .5-.2 1.2-.8 1.5-.6.3-1.5.4-3.1-.3-1.9-.9-3.2-2.7-3.5-3.2-.3-.5-.8-1.5-.6-2.4.1-.6.4-1 .6-1.1z" fill="#fff"/></svg>'},
+  {id:"vk",name:"ВКонтакте",svg:'<svg viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="#0077FF"/><path d="M17 22.5c-6 0-9.4-4.1-9.6-11h3c.1 5 2.3 7.1 4.1 7.6v-7.6h2.8v4.3c1.7-.2 3.5-2.1 4.1-4.3h2.8c-.5 2.6-2.4 4.5-3.8 5.3 1.4.7 3.6 2.4 4.4 5.7h-3.1c-.7-2.2-2.4-3.9-4.5-4.1v4.1z" fill="#fff"/></svg>'},
+  {id:"max",name:"Max",svg:'<svg viewBox="0 0 32 32"><defs><linearGradient id="mxg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4FC3FF"/><stop offset=".5" stop-color="#5B5BFF"/><stop offset="1" stop-color="#A24DFF"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#mxg)"/><path d="M16 8.5a7.5 7.5 0 0 0-6.3 11.6l-.9 3.4 3.4-.9A7.5 7.5 0 1 0 16 8.5z" fill="#fff"/></svg>'},
+  {id:"other",name:"Другое",svg:'<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".5"/><circle cx="10.5" cy="16" r="1.8" fill="currentColor"/><circle cx="16" cy="16" r="1.8" fill="currentColor"/><circle cx="21.5" cy="16" r="1.8" fill="currentColor"/></svg>'}
+];
+function msgrBlock(){
+  var h='<div class="sec">Где удобнее переписываться <span style="text-transform:none;letter-spacing:0">· можно несколько</span></div><div class="grp"><div class="msgr">';
+  MSGR.forEach(function(m){h+='<button class="mg'+(S.msgr[m.id]?" on":"")+'" data-a="msgr" data-v="'+m.id+'" aria-pressed="'+!!S.msgr[m.id]+'">'+m.svg+'<span>'+m.name+'</span></button>'});
+  h+='</div>';
+  var phoneOnes=["tg","wa","max"].filter(function(k){return S.msgr[k]});
+  if(phoneOnes.length) h+='<div class="note" style="padding:0 14px 10px">'+phoneOnes.map(function(k){return MSGR.filter(function(m){return m.id===k})[0].name}).join(", ")+': напишем на ваш номер телефона.</div>';
+  if(S.msgr.vk) h+='<div class="row"><label for="f-vk">ВКонтакте</label><input class="in" id="f-vk" data-f="vk" placeholder="ссылка на страницу или ник" value="'+esc(S.vk)+'"></div>';
+  if(S.msgr.other) h+='<div class="row"><label for="f-msgrOther">Другое</label><input class="in" id="f-msgrOther" data-f="msgrOther" placeholder="например, Viber или звонок" value="'+esc(S.msgrOther)+'"></div>';
+  return h+'</div>';
+}
+function vWho(){
+  var hall=HALLS[S.hall], h=bar(["toExtra","Назад"],"Личная информация")+'<div class="wscroll">';
+  if(regularOn()){
+    h+='<div class="hello"><div class="ava">А</div><div><h3>Здравствуйте, Анна!</h3><small>Мы помним вас на этом телефоне</small></div></div>';
+    h+='<div class="sec">Ваши данные</div><div class="grp"><div class="kv"><span>Имя</span><span>Анна</span></div><div class="kv"><span>Телефон</span><span>+7 900 000-00-00</span></div><div class="kv"><span>Почта</span><span>anna@example.ru</span></div><div class="kv"><span>Связь</span><span>Telegram, WhatsApp</span></div></div>';
+    h+='<button class="link" data-a="chk" style="padding-bottom:4px">Не вы?</button>';
+  }
+  h+='<div class="sec">Сколько человек</div><div class="grp"><div class="chips">'+hall.tiers.map(function(t,i){return '<button data-a="people" data-v="'+i+'" class="'+(S.people===i?"on":"")+'">'+t[0]+' · '+rub(t[1])+'/ч</button>'}).join("")+'</div></div>';
+  if(!regularOn()){
+    h+='<div class="sec">Контакты</div><div class="grp">';
+    h+=fld("name","Имя","given-name","text","Как к вам обращаться");
+    h+=fld("phone","Телефон","tel","tel","+7 900 000-00-00");
+    h+=fld("email","Почта","email","email","сюда придут чек и правила");
+    h+='</div>';
+    ["name","phone","email"].forEach(function(k){if(S.miss[k]) h+='<div class="err">'+({name:"Укажите имя",phone:"Нужен телефон, хотя бы 10 цифр",email:"Нужна почта: на неё придут чек и правила студии"})[k]+'</div>'});
+    h+=msgrBlock();
+  }
+  h+='<div class="sec">Правила</div><div class="grp"><button class="row check'+(S.agree?" on":"")+(S.miss.agree?" miss":"")+'" data-a="agree" role="checkbox" aria-checked="'+S.agree+'"><span class="box">'+(S.agree?"✓":"")+'</span><span class="t">С правилами студии согласен</span><span class="chev">›</span></button></div>';
+  if(S.miss.agree) h+='<div class="err">Без согласия с правилами бронь не отправить</div>';
+  // personal data: a separate tick, never pre-ticked and never glued to the studio rules (152-ФЗ)
+  h+='<div class="sec">Персональные данные</div><div class="grp">';
+  if(regularOn()) h+='<div class="kv"><span>Согласие на обработку</span><span>дано при прошлой брони</span></div>';
+  else h+='<button class="row check'+(S.pdAgree?" on":"")+(S.miss.pd?" miss":"")+'" data-a="pdAgree" role="checkbox" aria-checked="'+S.pdAgree+'"><span class="box">'+(S.pdAgree?"✓":"")+'</span><span class="t">Согласен на обработку персональных данных<small>имя, телефон, почта, мессенджер</small></span></button>';
+  h+='<button class="row" data-a="pdOpen"><span class="t acc">Как студия обращается с данными</span><span class="chev">'+(S.pdOpen?"⌃":"›")+'</span></button>';
+  if(S.pdOpen) h+='<div class="pdtext"><p><b>Кто обрабатывает.</b> Фотостудия «Томсон». Полные реквизиты студия указывает в админке, здесь они появятся сами.</p>'+
+    '<p><b>Зачем.</b> Чтобы оформить бронь, связаться с вами по ней, прислать чек и правила студии.</p>'+
+    '<p><b>Где хранятся.</b> На серверах в России. В Google-календарь студии попадает только время брони, без телефона и почты.</p>'+
+    '<p><b>Сколько.</b> Пока вы бронируете у студии и ещё 3 года после последней брони, затем удаляются.</p>'+
+    '<p><b>Как отозвать.</b> Напишите администратору в переписке брони или на почту студии: данные удалят, а браузер перестанет вас узнавать.</p>'+
+    '<p class="note" style="padding:0">Текст тестовый. Настоящую политику студия загружает в админке, юрист должен её проверить.</p></div>';
+  h+='</div>';
+  if(S.miss.pd) h+='<div class="err">Без согласия на обработку данных мы не сможем принять бронь</div>';
+  h+='<div style="height:16px"></div></div>';
+  h+='<div class="wfoot"><div class="frow"><b>'+rub(price().base)+'</b><span>'+hall.name+', '+dlong(S.date)+', '+hm(S.start)+'–'+hm(S.start+S.dur)+'</span></div><button class="go" data-a="toSum">Дальше</button></div>';
+  return h;
+}
+function fld(k,label,ac,type,ph){return '<div class="row'+(S.miss[k]?" miss":"")+'"><label for="f-'+k+'">'+label+'</label><input class="in" id="f-'+k+'" data-f="'+k+'" type="'+type+'" autocomplete="'+ac+'" placeholder="'+ph+'" value="'+esc(S[k])+'"></div>'}
+
+function vSum(){
+  var hall=HALLS[S.hall], p=price(), h=bar(["toWho","Назад"],"Проверьте")+'<div class="wscroll">';
+  h+='<div class="sec">Бронь</div><div class="grp"><div class="kv"><span>Зал</span><span>'+hall.name+'</span></div><div class="kv"><span>Когда</span><span>'+dlong(S.date)+', '+hm(S.start)+'–'+hm(S.start+S.dur)+'</span></div><div class="kv"><span>Людей</span><span>'+hall.tiers[S.people][0]+'</span></div></div>';
+  h+='<div class="sec">Цена</div><div class="grp"><div class="kv"><span>Зал, '+dur(S.dur)+'</span><span>'+rub(p.hall)+'</span></div>';
+  extras().forEach(function(x){h+='<div class="kv"><span>'+esc(x.name)+'</span><span>'+rub(x.sum)+'</span></div>'});
+  if(p.disc) h+='<div class="kv"><span>Скидка, '+p.disc.label+'</span><span style="color:var(--w-ok)">−'+p.disc.pct+'%</span></div>';
+  h+='<div class="kv tot"><span style="color:inherit">Итого</span><span>'+(p.disc?'<s>'+rub(p.base)+'</s>':'')+rub(p.total)+'</span></div>';
+  if(cfg.prepay) h+='<div class="kv"><span>Предоплата '+cfg.prepay+'%</span><span>'+rub(p.prepay)+'</span></div>';
+  h+='</div>';
+  if(p.disc&&p.disc.autoSkipped) h+='<div class="note">Скидка «будни до 12:00» не добавляется: скидки не складываются, при промокоде действует он.</div>';
+  if(!cfg.prepay) h+='<div class="note">Студия не берёт предоплату: оплата на месте.</div>';
+  h+='<div class="sec">Промокод</div><div class="grp"><div class="row"><input class="in" id="f-promo" data-f="promo" placeholder="Если есть" value="'+esc(S.promo)+'" autocomplete="off" style="text-transform:uppercase"><button class="link" style="padding:0" data-a="promo">Применить</button></div></div>';
+  if(S.promoMsg) h+='<div class="note" style="color:'+(S.promoOk?"var(--w-ok)":"var(--w-bad)")+'">'+S.promoMsg+'</div>';
+  h+='<div style="height:16px"></div></div><div class="wfoot"><button class="go" data-a="book">Забронировать · '+rub(p.total)+'</button><div class="hint">Откроется ваша страница брони. Сохраните её: пароль не нужен.</div></div>';
+  return h;
+}
+
+function vBooking(){
+  var b=booking, st=STATUSES.filter(function(x){return x.id===b.status})[0], left=Math.max(0,b.total-b.paid);
+  var h=bar(["toSite","Сайт студии"],"Ваша бронь")+'<div class="wscroll"><div class="bk"><div class="note" style="padding:0">'+HALLS[b.hall].name+'</div><h2>'+dlong(b.date)+', '+hm(b.start)+'–'+hm(b.start+b.dur)+'</h2><span class="pill '+st.cls+'">'+st.label+'</span><div class="note" style="padding:8px 0 0">'+st.text+'</div></div>';
+  h+='<div class="sec">Деньги</div><div class="grp"><div class="money"><div><span>Цена</span><b>'+rub(b.total)+'</b></div><div><span>Внесено</span><b>'+rub(b.paid)+'</b></div><div><span>Осталось</span><b>'+rub(left)+'</b></div></div>';
+  if(b.prepay&&b.paid<b.prepay&&b.status!=="cancel"&&b.status!=="noshow") h+='<div class="kv"><span>Предоплата '+b.prepayPct+'%</span><span>'+rub(b.prepay)+'</span></div>';
+  h+='<label class="row" style="cursor:pointer"><span class="t acc">Приложить чек'+(b.receipts.length?'<small>приложено: '+b.receipts.length+'</small>':'')+'</span><span class="chev">›</span><input type="file" id="rcpt" hidden accept="image/*,application/pdf"></label>';
+  h+='<div class="kv"><span>Чек от студии на почту</span><span>'+(b.receiptSent?'<span style="color:var(--w-ok)">отправлен</span>':'пока нет')+'</span></div></div>';
+  if(b.items.length){h+='<div class="sec">Заказано</div><div class="grp">'+b.items.map(function(x){return '<div class="kv"><span>'+esc(x.name)+'</span><span>'+rub(x.sum)+'</span></div>'}).join("")+'</div>'}
+  h+='<div class="sec">Переписка</div><div class="grp"><div class="chat" id="chat">'+b.chat.map(function(m){return '<div class="msg '+m.w+'">'+esc(m.t)+'</div>'}).join("")+'</div><div class="say"><input id="say" placeholder="Сообщение администратору" aria-label="Сообщение"><button data-a="say" aria-label="Отправить">↑</button></div></div>';
+  h+='<div class="sec">Ещё</div><div class="grp"><button class="row'+(b.notify?" on":"")+'" data-a="notify" role="switch" aria-checked="'+b.notify+'"><span class="t">Сообщать мне<small>об ответах и смене статуса</small></span><span class="sw"></span></button><div class="row"><span class="t">Правила студии</span><span class="chev">›</span></div><div class="row"><span class="t">Как нас найти</span><span class="chev">›</span></div></div><div style="height:16px"></div></div>';
+  return h;
+}
+function vLookup(){
+  var h=bar(["toMonth","Назад"],"Моя бронь")+'<div class="wscroll">';
+  if(!S.lookDone){
+    h+='<div class="note" style="padding-top:12px">Если сохранили ссылку на бронь, просто откройте её. Нет ссылки — введите телефон, с которым бронировали.</div><div class="sec">Телефон</div><div class="grp"><div class="row"><input class="in" type="tel" placeholder="+7 900 000-00-00" aria-label="Телефон"></div></div></div><div class="wfoot"><button class="go" data-a="lookGo">Найти бронь</button></div>';
+  } else {
+    h+='<div class="sec">Ссылку пришлёт администратор</div><div class="grp"><div class="row"><span class="t">Брони не показываются по одному номеру, чтобы их не увидел посторонний. Администратор пришлёт вам новую ссылку, старая перестанет работать.</span></div></div></div>';
+  }
+  return h;
+}
+
+/* ---------- pult ---------- */
+function opts(id,items,cur,act,dis){document.getElementById(id).innerHTML=items.map(function(x){return '<button data-p="'+act+'" data-v="'+x[0]+'" class="'+(String(cur)===String(x[0])?"on":"")+'"'+(dis&&dis(x[0])?" disabled":"")+'>'+x[1]+'</button>'}).join("")}
+function renderPult(){
+  opts("oScreen",[["phone","Телефон"],["desk","Компьютер"]],cfg.screen,"screen");
+  opts("presets",Object.keys(PRESETS).map(function(k){return [k,PRESETS[k].name]}),cfg.preset,"preset");
+  opts("oEntry",[["edison","Стр. «Эдисон»"],["sfera","Стр. «Сфера»"],["vegas","Стр. «Вегас»"],["all","«Расписание»"]],cfg.entry,"entry");
+  opts("oHalls",[["3","3, как в «Томсоне»"],["7","7, тестовая студия"]],Object.keys(HALLS).length>3?"7":"3","halls");
+  opts("oWho",[["new","Новый клиент"],["reg","Постоянный: Анна"]],cfg.regular?"reg":"new","who");
+  document.getElementById("winLbl").textContent="Окна зала «"+HALLS[S.hall].name+"» (студия ставит на карте)";
+  var wv=HALLS[S.hall].win; opts("oWin",[["0","С"],["45","СВ"],["90","В"],["135","ЮВ"],["180","Ю"],["225","ЮЗ"],["270","З"],["315","СЗ"],["none","Окон нет"],["null","Не указано"]],wv===null?"null":String(wv),"win");
+  opts("oSite",[["our","На нашей платформе"],["other","Чужой сайт"]],cfg.ourSite?"our":"other","site");
+  opts("oPrepay",[[100,"100%"],[50,"50%"],[30,"30%"],[0,"Нет"]],cfg.prepay,"prepay");
+  opts("oHours",[["8-23","8:00–23:00"],["9-22","9:00–22:00"],["10-20","10:00–20:00"],["0-24","Круглосуточно"]],OPEN/60+"-"+CLOSE/60,"hours");
+  opts("oAuto",[["on","Включена"],["off","Выключена"]],cfg.auto?"on":"off","auto");
+  var has=!!booking; document.getElementById("aRows").hidden=!has;
+  document.getElementById("aHint").textContent=has?"Меняйте статус и деньги: страница клиента в окне обновится сразу.":"Сначала забронируйте время в окне. Потом здесь можно менять статус брони и смотреть, что видит клиент.";
+  if(has){
+    opts("aStatus",STATUSES.map(function(s){return [s.id,s.label]}),booking.status,"status");
+    document.getElementById("aMoney").innerHTML='<button data-p="paidPre"'+(!booking.prepay||booking.paid>=booking.prepay?" disabled":"")+'>Пришла предоплата</button><button data-p="paidAll"'+(booking.paid>=booking.total?" disabled":"")+'>Оплачено полностью</button><button data-p="rcptSent" class="'+(booking.receiptSent?"on":"")+'">Чек отправлен</button><button data-p="reply">Ответить клиенту</button>';
+  }
+}
+(function(){var s=document.getElementById("cFont");s.innerHTML=Object.keys(FONTS).map(function(k){return '<option value="'+k+'">'+FONTS[k].name+'</option>'}).join("")})();
+
+/* ---------- interaction ---------- */
+function toast(text,min){
+  var rib=document.getElementById("rib"); if(!rib) return;
+  var old=rib.querySelector(".toast"); if(old) old.remove();
+  var d=document.createElement("div"); d.className="toast"; d.textContent=text;
+  d.style.top=Math.max(0,(min-OPEN)/60*PX-40)+"px"; rib.appendChild(d);
+  clearTimeout(toastT); toastT=setTimeout(function(){d.remove()},2600);
+}
+function tapLane(e){
+  var rib=document.getElementById("rib"), r=rib.getBoundingClientRect(), y=e.clientY-r.top;
+  var t=OPEN+Math.floor(y/(PX/2))*STEP; if(t<OPEN||t>=CLOSE) return;
+  if(!cellFree(S.hall,S.date,t)){toast(t<pastLimit(S.date)?"Это время уже прошло":"Это время занято",t);return}
+  var s=t;
+  if(!rangeFree(S.hall,S.date,s,s+MIN)){
+    if(rangeFree(S.hall,S.date,s-STEP,s+STEP)) s-=STEP; // let a tap just before a busy block fit by stepping back half an hour
+    else {toast(t+MIN>CLOSE?"До закрытия меньше часа, а минимум — 1 час":"Здесь меньше часа до занятого, а минимум — 1 час",t);return}
+  }
+  S.start=s; S.dur=MIN;
+  var old=document.getElementById("pick"); if(old) old.remove();
+  rib.insertAdjacentHTML("beforeend",pickHtml());
+  var hl=document.createElement("div"); hl.className="tap"; hl.style.top=((t-OPEN)/60*PX)+"px"; hl.style.height=(PX/2)+"px"; rib.appendChild(hl); setTimeout(function(){hl.remove()},350);
+  document.getElementById("dfoot").innerHTML=dayFoot();
+}
+document.addEventListener("pointerdown",function(e){
+  var g=e.target.closest("[data-g]"); if(!g) return;
+  e.preventDefault(); drag={edge:g.dataset.g,id:e.pointerId}; g.setPointerCapture(e.pointerId);
+  document.getElementById("pick").classList.add("drag");
+});
+document.addEventListener("pointermove",function(e){
+  if(!drag||e.pointerId!==drag.id) return;
+  var r=document.getElementById("rib").getBoundingClientRect(), m=OPEN+Math.round((e.clientY-r.top)/(PX/2))*STEP;
+  var a=S.start,b=S.start+S.dur;
+  if(drag.edge==="end"){ m=Math.max(a+MIN,Math.min(CLOSE,m)); while(m>a+MIN&&!rangeFree(S.hall,S.date,a,m)) m-=STEP; b=m; }
+  else { m=Math.min(b-MIN,Math.max(OPEN,m)); while(m<b-MIN&&!rangeFree(S.hall,S.date,m,b)) m+=STEP; a=m; }
+  if(a===S.start&&b===S.start+S.dur) return;
+  S.start=a; S.dur=b-a;
+  var p=document.getElementById("pick"); p.style.top=((a-OPEN)/60*PX)+"px"; p.style.height=(S.dur/60*PX)+"px";
+  document.getElementById("pickT").textContent=hm(a)+"–"+hm(b);
+  document.getElementById("pickL").textContent=pickLight();
+  document.getElementById("dfoot").innerHTML=dayFoot();
+});
+document.addEventListener("pointermove",function(e){
+  if(e.pointerType!=="mouse"||drag) return;
+  var rib=document.getElementById("rib"); if(!rib) return;
+  var g=document.getElementById("ghost"), lane=e.target.closest(".lane");
+  if(!lane){ if(g) g.remove(); return }
+  var r=rib.getBoundingClientRect(), t=OPEN+Math.floor((e.clientY-r.top)/(PX/2))*STEP;
+  if(t<OPEN||t>=CLOSE||!cellFree(S.hall,S.date,t)){ if(g) g.remove(); return }
+  var s=t; if(!rangeFree(S.hall,S.date,s,s+MIN)){ if(rangeFree(S.hall,S.date,s-STEP,s+STEP)) s-=STEP; else { if(g) g.remove(); return } }
+  if(!g){ g=document.createElement("div"); g.id="ghost"; g.className="hov"; rib.appendChild(g) }
+  g.style.top=((s-OPEN)/60*PX)+"px"; g.style.height=(MIN/60*PX)+"px"; g.textContent=hm(s)+"–"+hm(s+MIN);
+});
+function endDrag(){if(!drag)return;drag=null;var p=document.getElementById("pick");if(p)p.classList.remove("drag")}
+document.addEventListener("pointerup",endDrag); document.addEventListener("pointercancel",endDrag);
+
+// swipe on month grid / week strip
+var sw=null;
+document.addEventListener("pointerdown",function(e){var z=e.target.closest("#mgrid,#strip");if(z)sw={x:e.clientX,y:e.clientY,z:z.id}},true);
+document.addEventListener("pointerup",function(e){
+  if(!sw) return; var dx=e.clientX-sw.x, dy=e.clientY-sw.y, z=sw.z; sw=null;
+  if(Math.abs(dx)<50||Math.abs(dx)<Math.abs(dy)*1.5) return;
+  var dir=dx<0?1:-1;
+  if(z==="mgrid"){shiftMonth(dir)}
+  else { var d=pd(S.date); d.setDate(d.getDate()+7*dir); if(d<today()) d=today(); go(ymd(d)) }
+  swallow=Date.now()+300; render();
+},true);
+var swallow=0;
+function shiftMonth(dir){var t=today(),first=t.getFullYear()*12+t.getMonth(),m=new Date(S.month);m.setMonth(m.getMonth()+dir);var c=m.getFullYear()*12+m.getMonth();if(c<first||c>first+2)return;S.month=m}
+function go(date){ if(S.date!==date){S.date=date;S.start=null;S.dur=MIN} }
+
+document.addEventListener("click",function(e){
+  if(Date.now()<swallow){e.preventDefault();return}
+  var p=e.target.closest("[data-p]"); if(p) return pultClick(p);
+  var el=e.target.closest("[data-a]"); if(!el||!W.contains(el)) return;
+  var a=el.dataset.a, v=el.dataset.v;
+  switch(a){
+    case "hall": S.hall=v; S.start=null; if(!sunOk()) S.fSun=false; if(desk()&&view!=="booking"&&view!=="lookup") view="day"; break;
+    case "wk": var dw=pd(S.date); dw.setDate(dw.getDate()+7*v); if(dw<today()) dw=today(); go(ymd(dw)); view="day"; break;
+    case "hallList": S.sheet=true; break;
+    case "fSun": S.fSun=!S.fSun; break;
+    case "fOpen": S.fOpen=!S.fOpen; break;
+    case "fDay": S.fDays[v]=!S.fDays[v]; break;
+    case "fReset": S.fSun=false; S.fDays={}; S.fOpen=false; break;
+    case "fGo": if(desk()) W.dataset.day=""; go(v); var st=+el.dataset.s; if(rangeFree(S.hall,v,st,st+MIN)){S.start=st;S.dur=MIN} view="day"; W.dataset.view=""; render(); return;
+    case "hallPick": S.hall=v; S.start=null; S.sheet=false; if(!sunOk()) S.fSun=false; break;
+    case "sheetClose": if(e.target!==el) return; S.sheet=false; break;
+    case "mon": shiftMonth(+v); break;
+    case "date": if(desk()&&S.date===v&&view!=="booking"&&view!=="lookup") return; go(v); view="day"; W.dataset.view=""; render(); return;
+    case "toMonth": view=desk()?"day":"month"; S.lookDone=false; if(S.date){var d=pd(S.date);S.month=new Date(d.getFullYear(),d.getMonth(),1)} break;
+    case "lane": tapLane(e); return;
+    case "toDay": view="day"; break;
+    case "toExtra": view="extra"; break;
+    case "svc": S.svc[v]=!S.svc[v]; break;
+    case "gear": S.gear[v]=!S.gear[v]; break;
+    case "gearOpen": S.gearOpen=!S.gearOpen; break;
+    case "toWho": view="who"; S.miss={}; break;
+    case "chk": S.chk=true; break;
+    case "chkClose": if(e.target!==el) return; S.chk=false; break;
+    case "chkYes": S.chk=false; break;
+    case "chkEdit": S.chk=false; S.notMe=true; S.name="Анна"; S.phone="+7 900 000-00-00"; S.email="anna@example.ru"; S.msgr={tg:true,wa:true}; break;
+    case "notMe": S.chk=false; S.notMe=true; S.pdAgree=false; S.name=""; S.phone=""; S.email=""; S.msgr={}; S.vk=""; S.msgrOther=""; break;
+    case "people": S.people=+v; break;
+    case "msgr": S.msgr[v]=!S.msgr[v]; break;
+    case "agree": S.agree=!S.agree; delete S.miss.agree; break;
+    case "pdAgree": S.pdAgree=!S.pdAgree; delete S.miss.pd; break;
+    case "pdOpen": S.pdOpen=!S.pdOpen; break;
+    case "toSum":
+      var m={};
+      if(!regularOn()){ if(!S.name.trim())m.name=1; if(S.phone.replace(/\D/g,"").length<10)m.phone=1; if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(S.email.trim()))m.email=1; }
+      if(!S.agree) m.agree=1;
+      if(!regularOn()&&!S.pdAgree) m.pd=1;
+      S.miss=m; if(Object.keys(m).length){render(); var f=W.querySelector(".miss"); if(f) f.scrollIntoView({block:"center",behavior:"smooth"}); return}
+      view="sum"; break;
+    case "promo":
+      var c=(S.promo||"").trim().toUpperCase();
+      if(!c){S.promoOk=null;S.promoMsg=""}
+      else if(PROMOS[c]){S.promoOk=c;S.promoMsg="Промокод "+c+" применён: −"+PROMOS[c]+"%"}
+      else {S.promoOk=null;S.promoMsg="Такого промокода нет. Проверьте написание."}
+      break;
+    case "book": book(); break;
+    case "openBk": view="booking"; break;
+    case "toSite": var keep=booking; reset(); booking=keep; W.dataset.day=""; break;
+    case "lookup": view="lookup"; S.lookDone=false; break;
+    case "lookGo": S.lookDone=true; break;
+    case "say": var i=document.getElementById("say"); if(!i.value.trim()) return; booking.chat.push({w:"me",t:i.value.trim()}); break;
+    case "notify": booking.notify=!booking.notify; break;
+    default: return;
+  }
+  render();
+});
+function book(){
+  var p=price();
+  booking={hall:S.hall,date:S.date,start:S.start,dur:S.dur,total:p.total,prepayPct:cfg.prepay,prepay:p.prepay,paid:0,status:"req",
+    items:extras(),receipts:[],receiptSent:false,notify:false,chat:[{w:"sys",t:"Заявка отправлена. Администратор видит её у себя."}]};
+  view="booking";
+}
+function pultClick(el){
+  var a=el.dataset.p, v=el.dataset.v;
+  switch(a){
+    case "screen": cfg.screen=v; if(v==="phone"&&view==="day"&&S.start===null) view="month"; W.dataset.day=""; window.scrollTo(0,0); break;
+    case "preset": cfg.preset=v; cfg.accent=null; cfg.font=null; cfg.r=null; applyTheme(); break;
+    case "entry": cfg.entry=v; var keep=booking; reset(); booking=keep; break;
+    case "halls":
+      var extra={loft:["Лофт",1400],cyc:["Циклорама",1800],kitchen:["Кухня",1200],dark:["Тёмный зал",1500]};
+      if(v==="7"){Object.keys(extra).forEach(function(k){HALLS[k]={name:extra[k][0],win:null,tiers:[["1–9",extra[k][1]],["10–15",extra[k][1]+200]]}})}
+      else {Object.keys(extra).forEach(function(k){delete HALLS[k]}); if(!HALLS[S.hall]) S.hall="edison"}
+      cfg.entry="all"; S.sheet=false; break;
+    case "who": cfg.regular=v==="reg"; S.notMe=false; S.miss={}; break;
+    case "site": cfg.ourSite=v==="our"; break;
+    case "win": HALLS[S.hall].win=v==="none"?"none":v==="null"?null:+v; break;
+    case "prepay": cfg.prepay=+v; break;
+    case "hours": var hh=v.split("-"); OPEN=+hh[0]*60; CLOSE=+hh[1]*60; S.start=null; S.dur=MIN; W.dataset.day=""; if(view!=="booking"&&view!=="lookup"&&view!=="month") view="day"; break;
+    case "auto": cfg.auto=v==="on"; break;
+    case "status": if(booking.status!==v){booking.status=v; booking.chat.push({w:"sys",t:"Статус: «"+STATUSES.filter(function(s){return s.id===v})[0].label+"»"})} break;
+    case "paidPre": booking.paid=Math.max(booking.paid,booking.prepay); booking.chat.push({w:"sys",t:"Предоплата получена: "+rub(booking.prepay)}); break;
+    case "paidAll": booking.paid=booking.total; booking.chat.push({w:"sys",t:"Оплачено полностью"}); break;
+    case "rcptSent": booking.receiptSent=!booking.receiptSent; break;
+    case "reply": booking.chat.push({w:"adm",t:["Здравствуйте! Бронь вижу, подтверждаю.","Чек получили, спасибо!","Приходите за 5 минут до начала."][booking.chat.length%3]}); break;
+  }
+  render();
+}
+document.getElementById("addSvcBtn").addEventListener("click",function(){
+  var i=document.getElementById("newSvc"), n=i.value.trim(); if(!n) return;
+  SERVICES.push({id:"c"+SERVICES.length,name:n,sub:"своя услуга студии, цена тестовая",price:1000,unit:"once"}); i.value="";
+  if(view!=="extra"&&S.start!==null) view="extra"; render();
+});
+document.addEventListener("input",function(e){
+  var f=e.target.dataset.f; if(f){S[f]=e.target.value; if(S.miss[f]){delete S.miss[f]; var r=e.target.closest(".miss"); if(r) r.classList.remove("miss")}}
+  if(e.target.id==="cAccent"){cfg.accent=e.target.value;applyTheme()}
+  if(e.target.id==="cRad"){cfg.r=+e.target.value;applyTheme()}
+});
+document.addEventListener("change",function(e){
+  if(e.target.id==="cFont"){cfg.font=e.target.value;applyTheme()}
+  if(e.target.id==="rcpt"&&e.target.files[0]){booking.receipts.push(e.target.files[0].name);booking.chat.push({w:"sys",t:"Вы приложили чек"});render()}
+});
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Enter") return;
+  if(e.target.id==="say"){e.preventDefault();W.querySelector('[data-a="say"]').click()}
+  if(e.target.id==="f-promo"){e.preventDefault();W.querySelector('[data-a="promo"]').click()}
+});
+
+applyTheme(); render();
+})();
+</script>

@@ -1,0 +1,379 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BroniOS · развёртка подключения студии</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: explanation column left, phone with the live wizard right; stacks on phones. Tokens follow the accepted admin mockup. */
+:root{
+  --bg:#ecebe7; --card:#f9f8f6; --ink:#1b1a18; --muted:#6b675f; --line:rgba(27,26,24,.13); --accent:#9a5a1c;
+  --a-bg:#f4f3f0; --a-sf:#ffffff; --a-sf2:#ecebe6; --a-ink:#1a1917; --a-ink2:#6e6a63; --a-line:rgba(26,25,23,.11);
+  --a-acc:#a8601e; --a-on:#ffffff; --a-req:#c98512; --a-ok:#2f7a4a; --a-bad:#c0392b; --a-off:rgba(26,25,23,.045);
+  --h1:#cf8a3a; --h2:#3f88bd; --h3:#8a68c4; --h4:#3f9a7a; --h5:#b85a7a; --h6:#8d8a2e;
+  --sans:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121110; --card:#1c1a18; --ink:#eeebe5; --muted:#9a958c; --line:rgba(238,235,229,.12); --accent:#e3a857;
+  --a-bg:#0f0d0b; --a-sf:#1b1916; --a-sf2:#26231f; --a-ink:#f2ede4; --a-ink2:#8f877c; --a-line:rgba(255,255,255,.09);
+  --a-acc:#e3a857; --a-on:#1a1408; --a-req:#e0a53a; --a-ok:#5fb47c; --a-bad:#e5624f; --a-off:rgba(255,255,255,.035);
+  --h1:#e0a052; --h2:#5aa3d6; --h3:#a688dc; --h4:#5cc09c; --h5:#d67a9a; --h6:#b8b34a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121110; --card:#1c1a18; --ink:#eeebe5; --muted:#9a958c; --line:rgba(238,235,229,.12); --accent:#e3a857;
+  --a-bg:#0f0d0b; --a-sf:#1b1916; --a-sf2:#26231f; --a-ink:#f2ede4; --a-ink2:#8f877c; --a-line:rgba(255,255,255,.09);
+  --a-acc:#e3a857; --a-on:#1a1408; --a-req:#e0a53a; --a-ok:#5fb47c; --a-bad:#e5624f; --a-off:rgba(255,255,255,.035);
+  --h1:#e0a052; --h2:#5aa3d6; --h3:#a688dc; --h4:#5cc09c; --h5:#d67a9a; --h6:#b8b34a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;margin:0;padding-inline:16px;padding-block:28px 48px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:36px;align-items:start}
+@media (max-width:880px){.wrap{grid-template-columns:minmax(0,1fr)}.phone-col{order:-1}}
+h1{font-size:28px;line-height:1.15;margin:0 0 8px;text-wrap:balance;letter-spacing:-.01em}
+h2{font-size:17px;margin:0 0 6px;text-wrap:balance}
+p{margin:0 0 10px;max-width:64ch}
+.lead{color:var(--muted)}
+.eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.side{display:flex;flex-direction:column;gap:22px;min-width:0}
+.legend{display:flex;flex-wrap:wrap;gap:8px;font-size:12.5px}
+.tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.t-ok{background:color-mix(in srgb,var(--a-ok) 16%,transparent);color:var(--a-ok)}
+.t-pr{background:color-mix(in srgb,var(--a-acc) 16%,transparent);color:var(--a-acc)}
+.t-cl{background:color-mix(in srgb,var(--a-req) 18%,transparent);color:var(--a-req)}
+.t-no{background:color-mix(in srgb,var(--a-bad) 14%,transparent);color:var(--a-bad)}
+.route{display:flex;flex-direction:column;gap:2px;border-top:1px solid var(--line)}
+.rstep{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;padding:10px 6px;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;text-align:left;color:inherit;font:inherit;width:100%}
+.rstep:hover{background:var(--a-off)}
+.rstep:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.rstep .n{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.rstep.on .n{background:var(--accent);border-color:var(--accent);color:var(--card)}
+.rstep.done .n{border-color:var(--a-ok);color:var(--a-ok)}
+.rstep b{display:block;font-size:14.5px}
+.rstep small{color:var(--muted);font-size:13px}
+.opt{font-size:11px;color:var(--muted);font-weight:600;margin-left:6px}
+.note{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.note ul{margin:6px 0 0;padding-left:18px}
+.note li{margin:4px 0}
+.why{font-size:14px}
+.why .row{display:flex;gap:8px;align-items:baseline;margin:6px 0}
+.why .row .tag{flex:none}
+
+/* phone */
+.phone-col{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
+@media (max-width:880px){.phone-col{position:static}}
+.phone{width:100%;max-width:390px;margin:0 auto;height:760px;max-height:calc(100vh - 40px);min-height:600px;border-radius:38px;border:1px solid var(--line);background:var(--a-bg);color:var(--a-ink);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 50px -30px rgba(0,0,0,.55)}
+.ptop{padding:14px 18px 10px;border-bottom:1px solid var(--a-line);background:var(--a-sf)}
+.ptop .bar{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--a-ink2);font-weight:600}
+.prog{display:flex;gap:4px;margin-top:10px}
+.prog i{flex:1;height:4px;border-radius:4px;background:var(--a-sf2)}
+.prog i.f{background:var(--a-acc)}
+.pbody{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px}
+.pfoot{padding:12px 18px 18px;border-top:1px solid var(--a-line);background:var(--a-sf);display:flex;gap:10px}
+.btn{appearance:none;border:0;border-radius:12px;padding:13px 16px;font:700 15px var(--sans);cursor:pointer;background:var(--a-acc);color:var(--a-on);flex:1}
+.btn.ghost{background:var(--a-sf2);color:var(--a-ink);flex:0 0 auto}
+.btn:disabled{opacity:.45;cursor:default}
+.btn:focus-visible,.chip:focus-visible,.inp:focus-visible{outline:2px solid var(--a-acc);outline-offset:2px}
+.ph{font-size:22px;font-weight:800;line-height:1.2;margin:0;text-wrap:balance}
+.sub{color:var(--a-ink2);font-size:14px;margin:0}
+.grp{background:var(--a-sf);border:1px solid var(--a-line);border-radius:14px;overflow:hidden}
+.fld{display:flex;flex-direction:column;gap:4px;padding:10px 14px;border-bottom:1px solid var(--a-line)}
+.fld:last-child{border-bottom:0}
+.fld label{font-size:12px;color:var(--a-ink2);font-weight:600}
+.inp{border:0;background:transparent;font:500 16px var(--sans);color:var(--a-ink);padding:2px 0;width:100%;min-width:0}
+.inp::placeholder{color:var(--a-ink2);opacity:.7}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{appearance:none;border:1.5px solid var(--a-line);background:var(--a-sf);color:var(--a-ink);border-radius:99px;padding:7px 13px;font:600 14px var(--sans);cursor:pointer}
+.chip.on{border-color:var(--a-acc);background:color-mix(in srgb,var(--a-acc) 12%,var(--a-sf));color:var(--a-acc)}
+.card{background:var(--a-sf);border:1.5px solid var(--a-line);border-radius:14px;padding:12px 14px;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%;display:block}
+.card.on{border-color:var(--a-acc)}
+.card b{display:block;font-size:15px}
+.card small{color:var(--a-ink2);font-size:13px;display:block;margin-top:2px}
+.hint{font-size:12.5px;color:var(--a-ink2);background:var(--a-off);border-radius:10px;padding:9px 11px}
+.hint b{color:var(--a-ink)}
+.lbl{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--a-ink2);font-weight:700;margin:4px 0 -6px}
+.map{height:150px;border-radius:14px;border:1px solid var(--a-line);position:relative;overflow:hidden;background:
+ linear-gradient(90deg,transparent 48%,var(--a-line) 48%,var(--a-line) 52%,transparent 52%) 0 0/70px 70px,
+ linear-gradient(0deg,transparent 46%,var(--a-line) 46%,var(--a-line) 54%,transparent 54%) 0 0/90px 60px,var(--a-sf2)}
+.pin{position:absolute;left:50%;top:44%;width:18px;height:18px;border-radius:50% 50% 50% 0;background:var(--a-acc);transform:translate(-50%,-50%) rotate(-45deg);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.map small{position:absolute;left:10px;bottom:8px;font-size:11.5px;color:var(--a-ink2);background:var(--a-sf);padding:2px 8px;border-radius:8px}
+.hall{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--a-line)}
+.hall:last-child{border-bottom:0}
+.dot{width:12px;height:12px;border-radius:50%}
+.hall b{font-size:15px;display:block}
+.hall small{font-size:12.5px;color:var(--a-ink2)}
+.lnk{appearance:none;border:0;background:none;color:var(--a-acc);font:700 14px var(--sans);cursor:pointer;padding:6px 0}
+.compass{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.compass .chip{padding:7px 0;text-align:center}
+.tbl{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.tbl td{padding:8px 14px;border-bottom:1px solid var(--a-line)}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td:last-child{text-align:right;font-weight:700}
+.chk{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--a-line)}
+.chk:last-child{border-bottom:0}
+.chk .c{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--a-line);display:grid;place-items:center;font-size:12px;font-weight:800}
+.chk.y .c{background:var(--a-ok);border-color:var(--a-ok);color:var(--a-on)}
+.chk b{font-size:14.5px;display:block}
+.chk small{font-size:12.5px;color:var(--a-ink2)}
+.toggle{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--a-line);font-size:14.5px}
+.toggle:last-child{border-bottom:0}
+.sw{appearance:none;width:44px;height:26px;border-radius:99px;background:var(--a-sf2);position:relative;cursor:pointer;flex:none;border:0;margin:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--a-sf);box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .15s}
+.sw:checked{background:var(--a-ok)}
+.sw:checked::after{left:21px}
+.code{display:flex;gap:8px}
+.code span{flex:1;height:52px;border-radius:12px;background:var(--a-sf);border:1.5px solid var(--a-line);display:grid;place-items:center;font-size:22px;font-weight:800}
+.wid{border-radius:14px;padding:14px;border:1px solid var(--a-line);background:var(--a-sf)}
+.wid .slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.wid .slots span{text-align:center;padding:7px 0;border-radius:9px;font-size:13px;font-weight:700;background:var(--a-sf2)}
+.wid .slots span.busy{opacity:.4;text-decoration:line-through}
+.done-hero{text-align:center;padding:12px 0 4px}
+.done-hero .big{font-size:42px;line-height:1}
+@media (prefers-reduced-motion:reduce){.sw::after{transition:none}}
+</style>
+<style>
+.shot.ob .phone{height:auto!important;max-height:none!important;min-height:760px!important;margin:0!important;width:100%!important}
+.shot.ob .pbody{flex:1 0 auto!important;overflow:visible!important;min-height:0!important}
+figure.shot{grid-template-columns:minmax(0,1fr)}
+.shot .dev{min-width:0}
+.shot *{transition:none!important}
+#bar .sw::after{display:none!important}
+#bar .sw{appearance:none;-webkit-appearance:none;transition:none!important;min-height:0}
+</style>
+<style>
+:root{--sh-bg:#e7e5e0;--sh-dot:rgba(0,0,0,.09);--sh-bar:#fbfaf8;--sh-ink:#1b1a18;--sh-muted:#6b675f;--sh-line:rgba(27,26,24,.14);--sh-acc:#3d5a80}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--sh-bg:#161514;--sh-dot:rgba(255,255,255,.07);--sh-bar:#1e1d1b;--sh-ink:#eeebe5;--sh-muted:#9a958c;--sh-line:rgba(238,235,229,.14);--sh-acc:#9db7d9}}
+:root[data-theme="dark"]{--sh-bg:#161514;--sh-dot:rgba(255,255,255,.07);--sh-bar:#1e1d1b;--sh-ink:#eeebe5;--sh-muted:#9a958c;--sh-line:rgba(238,235,229,.14);--sh-acc:#9db7d9}
+html,body{margin:0!important;padding:0!important;height:100%;overflow:hidden!important;background:var(--sh-bg)!important}
+#vp{position:fixed;inset:0;overflow:hidden;cursor:grab;touch-action:none;background-color:var(--sh-bg);background-image:radial-gradient(var(--sh-dot) 1px,transparent 1px);background-size:24px 24px}
+#vp.drag{cursor:grabbing}
+#stage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.grp-sh{margin:0 0 140px}
+.grp-sh>h2{font:700 44px/1.1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--sh-ink);margin:0 0 8px;white-space:nowrap}
+.grp-sh>p{font:400 22px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--sh-muted);margin:0 0 34px;max-width:1400px}
+.row-sh{display:flex;gap:72px;align-items:flex-start}
+figure.shot{margin:0;flex:none;display:grid;gap:14px;align-content:start}
+figure.shot>figcaption{font:700 22px/1.25 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--sh-ink);max-width:100%}
+figure.shot>figcaption small{display:block;font-weight:400;font-size:17px;color:var(--sh-muted);margin-top:4px}
+.dev{position:relative;pointer-events:none;user-select:none}
+.dev .fold{position:absolute;left:-18px;right:-18px;border-top:2px dashed #e0483a;z-index:99}
+.dev .fold span{position:absolute;right:0;top:-24px;font:600 13px/1 -apple-system,sans-serif;color:#e0483a;background:var(--sh-bg);padding:3px 6px;border-radius:5px}
+#bar{position:fixed;left:12px;right:12px;top:12px;z-index:1000;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;background:var(--sh-bar);color:var(--sh-ink);border:1px solid var(--sh-line);border-radius:14px;padding:9px 12px;font:14px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;box-shadow:0 10px 30px -18px rgba(0,0,0,.5)}
+#bar b.t{font-size:15px}
+#bar .g{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#bar .lb{color:var(--sh-muted);font-size:12.5px}
+#bar button{font:inherit;border:1px solid var(--sh-line);background:transparent;color:var(--sh-ink);border-radius:9px;padding:5px 10px;cursor:pointer}
+#bar button.on{background:var(--sh-ink);color:var(--sh-bar)}
+#bar .accsw{width:24px;height:24px;border-radius:50%;padding:0;border:2px solid var(--sh-bar);box-shadow:0 0 0 1px var(--sh-line)}
+#bar .accsw.on{box-shadow:0 0 0 2px var(--sh-ink)}
+#bar input[type=color]{width:34px;height:28px;border:1px solid var(--sh-line);border-radius:8px;padding:2px;background:transparent;cursor:pointer}
+#zoomv{min-width:46px;text-align:center;font-variant-numeric:tabular-nums}
+#help{color:var(--sh-muted);font-size:12.5px}
+@media (max-width:700px){#help{display:none}#bar{gap:6px 10px}}
+</style>
+<style id="acc"></style>
+<script type="text/plain" id="acctpl">:root,:root[data-theme]{--a-acc:{A}!important;--a-on:{ON}!important;--accent:{A}!important}</script>
+</head><body>
+<div id="bar"><b class="t">BroniOS · развёртка подключения студии</b>
+<span class="g"><span class="lb">Масштаб</span><button id="zout" aria-label="Мельче">−</button><span id="zoomv">35%</span><button id="zin" aria-label="Крупнее">+</button><button id="zfit">Всё</button><button id="z100">100%</button></span>
+<span class="g"><span class="lb">Показать</span><button data-g="0">Основной путь</button><button data-g="1">Варианты</button></span>
+<span class="g"><span class="lb">Акцент</span><button class="accsw on" data-c="" title="Как в макете" aria-label="Как в макете" style="background:#a8601e"></button><button class="accsw" data-c="#b4532a" title="Терракота" aria-label="Терракота" style="background:#b4532a"></button><button class="accsw" data-c="#2b5fd9" title="Синий" aria-label="Синий" style="background:#2b5fd9"></button><button class="accsw" data-c="#2e7d5b" title="Зелёный" aria-label="Зелёный" style="background:#2e7d5b"></button><button class="accsw" data-c="#6b4fd8" title="Фиолетовый" aria-label="Фиолетовый" style="background:#6b4fd8"></button><button class="accsw" data-c="#0f7c8c" title="Морской" aria-label="Морской" style="background:#0f7c8c"></button><button class="accsw" data-c="#8e2c48" title="Винный" aria-label="Винный" style="background:#8e2c48"></button><button class="accsw" data-c="#2c2f36" title="Графит" aria-label="Графит" style="background:#2c2f36"></button><button class="accsw" data-c="#e0a03a" title="Янтарный" aria-label="Янтарный" style="background:#e0a03a"></button><input type="color" id="cpick" value="#a8601e" aria-label="Свой цвет"></span>
+<span class="g"><span class="lb">Тема</span><button data-th="" class="on">Как в системе</button><button data-th="light">Светлая</button><button data-th="dark">Тёмная</button></span>
+<span id="help">Колесо или щипок: масштаб. Перетаскивание: сдвиг. Клавиша 0: всё сразу.</span></div>
+<div id="vp"><div id="stage"><section class="grp-sh" id="g0"><h2>Шаги мастера (основной путь)</h2><p>Девять шагов мастера «Подключение студии» в порядке прохождения. Пример выдуман: студия «Белый куб», Новосибирск. Красная пунктирная линия отмечает конец первого экрана телефона, ниже видно только прокруткой.</p><div class="row-sh"><figure class="shot ob" style="width:390px"><figcaption>1. Вход<small>Телефон и одноразовый код. Вход по приглашению от фотографа.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Вход</span><span id="stepNum">1 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Подключите студию к BroniOS</p><div class="lbl">Как владелец сюда попал</div><div class="chips"><button type="button" class="chip on" data-g="entry" data-v="invite">Приглашение</button><button type="button" class="chip" data-g="entry" data-v="self">Сам</button><button type="button" class="chip" data-g="entry" data-v="claim">«Это моя студия»</button></div><p class="sub">Вас пригласила Мария Соколова, фотограф. Она уже снимала у вас и добавила студию в свой планер.</p><div class="grp"><div class="fld"><label for="f-phone">Ваш телефон</label><input class="inp" id="f-phone" inputmode="tel" value="+7 913 555-01-02"></div></div><div class="lbl">Код пришёл в Telegram</div><div class="code"><span>4</span><span>8</span><span>1</span><span>7</span></div><div class="hint"><b>Заглушка.</b> Куда приходит код, ещё не решено (Telegram, Max, ВК или звонок). Платных SMS не будет.</div><div class="hint">Этот телефон станет <b>хозяином</b> студии. Директора и администраторов вы позовёте позже.</div><div class="hint">Черновик студии хранится <b>12 часов</b> с вашего последнего действия. Не успеете открыть запись, за час до удаления придёт напоминание.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button" hidden="">Назад</button><button class="btn" id="next" type="button">Войти</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>2. Студия<small>Название, адрес, точка на карте.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Студия</span><span id="stepNum">2 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Ваша студия</p><div class="hint">Мария указала название и адрес. Проверьте и поправьте, если нужно.</div><div class="grp"><div class="fld"><label for="f-name">Название</label><input class="inp" id="f-name" data-k="name" value="Белый куб"></div><div class="fld"><label for="f-city">Город</label><input class="inp" id="f-city" data-k="city" value="Новосибирск"></div><div class="fld"><label for="f-addr">Адрес и как найти вход</label><input class="inp" id="f-addr" data-k="addr" value="ул. Фабричная, 10, 3 этаж"></div></div><div class="map" aria-label="Точка на карте"><span class="pin"></span><small>Передвиньте точку на здание</small></div><div class="hint">Часовой пояс по точке: <b>Новосибирск, UTC+7</b>. Клиенты из других городов увидят время студии с пометкой.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>3. Сайт<small>Где клиенты будут бронировать. Режим «Сайта нет» выбран по умолчанию.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Сайт</span><span id="stepNum">3 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Где клиенты будут бронировать?</p><button type="button" class="card" data-g="mode" data-v="site"><b>На сайте нашей платформы</b><small>Залы, цены и услуги берутся с сайта, вводить второй раз не нужно.</small></button><button type="button" class="card" data-g="mode" data-v="own"><b>На своём сайте</b><small>Тильда, Vigbo, WordPress… Вставите окно брони кодом или кнопкой. Залы и цены заводите здесь.</small></button><button type="button" class="card on" data-g="mode" data-v="none"><b>Сайта нет</b><small>Получите свою страницу записи по ссылке для ВК, Instagram и мессенджеров. Залы и цены заводите здесь.</small></button><div class="hint">Режим можно поменять позже, брони при этом не теряются.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>4. Залы<small>Список залов, правка выбранного, окна по сторонам света.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Залы</span><span id="stepNum">4 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Залы</p><div class="grp"><div class="hall"><span class="dot" style="background:var(--h2)"></span><span><b>Белый</b><small>1–5 чел. 1 400 ₽/ч · 6–10 чел. 1 700 ₽/ч · от 1 ч · окна: ЮЗ</small></span><button type="button" class="lnk" data-edit="0">Изм.</button></div><div class="hall"><span class="dot" style="background:var(--h1)"></span><span><b>Циклорама</b><small>1–5 чел. 1 800 ₽/ч · 6–10 чел. 2 100 ₽/ч · от 2 ч · окна: нет</small></span><button type="button" class="lnk" data-edit="1">Изм.</button></div></div><button type="button" class="lnk" id="addHall">+ Добавить зал</button><div class="lbl">Зал «Белый»</div><div class="grp"><div class="fld"><label for="h-n">Название</label><input class="inp" id="h-n" value="Белый"></div><div class="fld"><label for="h-p1">Цена за час, 1–5 человек</label><input class="inp" id="h-p1" inputmode="numeric" value="1400"></div><div class="fld"><label for="h-p2">Цена за час, 6–10 человек</label><input class="inp" id="h-p2" inputmode="numeric" value="1700"></div></div><div class="lbl">Куда выходят окна</div><div class="compass"><button type="button" class="chip" data-g="win" data-v="С">С</button><button type="button" class="chip" data-g="win" data-v="СВ">СВ</button><button type="button" class="chip" data-g="win" data-v="В">В</button><button type="button" class="chip" data-g="win" data-v="ЮВ">ЮВ</button><button type="button" class="chip" data-g="win" data-v="Ю">Ю</button><button type="button" class="chip on" data-g="win" data-v="ЮЗ">ЮЗ</button><button type="button" class="chip" data-g="win" data-v="З">З</button><button type="button" class="chip" data-g="win" data-v="СЗ">СЗ</button></div><div class="chips"><button type="button" class="chip" data-g="win" data-v="нет">Окон нет</button></div><div class="hint">По окнам BroniOS подскажет клиенту свет в выбранный час: прямое солнце, закат или рассеянный свет. Расчёт солнца из Light Plan.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>5. Часы работы<small>Когда клиенты могут бронировать.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Часы работы</span><span id="stepNum">5 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Когда клиенты могут бронировать?</p><div class="grp"><div class="fld"><label for="w-o">Открытие</label><input class="inp" id="w-o" data-k="open" value="09:00"></div><div class="fld"><label for="w-c">Закрытие</label><input class="inp" id="w-c" data-k="close" value="22:00"></div><div class="toggle"><label for="w-s">Одинаково каждый день</label><input type="checkbox" class="sw" id="w-s" checked=""></div></div><div class="hint">Клиент выберет время только с <b>09:00</b> до <b>22:00</b>. Вы и администраторы ставите бронь в любое время, хоть с 6 утра до 2 ночи.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>6. Оплата<small>Предоплата, бесплатная отмена, чеки.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Оплата</span><span id="stepNum">6 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Оплата от клиентов</p><button type="button" class="card on" data-g="pay" data-v="manual"><b>Перевод вручную</b><small>Клиент переводит по вашим реквизитам и прикладывает скриншот к брони, администратор подтверждает.</small></button><button type="button" class="card" data-g="pay" data-v="online"><b>Онлайн-оплата</b><small>Нужен договор с банком. Можно подключить позже.</small></button><div class="lbl">Предоплата</div><div class="chips"><button type="button" class="chip" data-g="pre" data-v="100">100 %</button><button type="button" class="chip on" data-g="pre" data-v="50">50 %</button><button type="button" class="chip" data-g="pre" data-v="30">30 %</button><button type="button" class="chip" data-g="pre" data-v="0">Без предоплаты</button></div><div class="lbl">Бесплатная отмена</div><div class="chips"><button type="button" class="chip" data-g="cancel" data-v="0">нельзя</button><button type="button" class="chip on" data-g="cancel" data-v="24">за 24 ч</button><button type="button" class="chip" data-g="cancel" data-v="48">за 48 ч</button></div><div class="lbl">Чеки</div><div class="chips"><button type="button" class="chip on" data-g="receipt" data-v="nalog">«Мой налог»</button><button type="button" class="chip" data-g="receipt" data-v="kassa">Онлайн-касса</button></div><div class="hint">Пример для клиента: «Белый» 2 ч = 2 800 ₽, предоплата 50 % = <b>1 400 ₽</b>.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>7. Правила и документы<small>Обязательный шаг: правила, политика данных, реквизиты.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Правила и документы</span><span id="stepNum">7 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Правила и документы</p><div class="grp"><div class="toggle"><span>Правила студии<br><small style="color:var(--a-ink2)">Шаблон: обувь, животные, конфетти, опоздание. Правите под себя.</small></span><input type="checkbox" class="sw" id="d-r" checked=""></div><div class="toggle"><span>Политика обработки данных и согласие<br><small style="color:var(--a-ink2)">Шаблон платформы, проверенный юристом. Вы вписываете только реквизиты.</small></span><input type="checkbox" class="sw" id="d-c" checked=""></div></div><div class="lbl">Кто принимает оплату</div><div class="chips"><button type="button" class="chip on" data-g="legal" data-v="self">Самозанятый</button><button type="button" class="chip" data-g="legal" data-v="ip">ИП</button><button type="button" class="chip" data-g="legal" data-v="ooo">ООО</button></div><div class="grp"><div class="fld"><label for="d-fio">ФИО или название</label><input class="inp" id="d-fio" placeholder="Как в документах" value=""></div><div class="fld"><label for="d-inn">ИНН</label><input class="inp" id="d-inn" inputmode="numeric" placeholder="12 цифр" value=""></div></div><div class="hint">Клиент увидит две отдельные галочки: «С правилами студии согласен» и «Согласен на обработку данных».</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>8. Дополнительно<small>Необязательный шаг: услуги, команда, переезд со старого сервиса.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Дополнительно · можно пропустить</span><span id="stepNum">8 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Дополнительно</p><p class="sub">Можно пропустить, всё это ждёт в списке «Готовность студии».</p><div class="lbl">Услуги</div><div class="chips"><button type="button" class="chip" data-g="svc" data-v="gaf">Гаффер · за час</button><button type="button" class="chip on" data-g="svc" data-v="clean">Уборка · фикс.</button><button type="button" class="chip" data-g="svc" data-v="pets">Съёмка с животными</button><button type="button" class="chip">+ Своя</button></div><div class="lbl">Команда</div><div class="grp"><div class="toggle"><span>Позвать администратора по номеру телефона</span><input type="checkbox" class="sw" id="t-t"></div></div><div class="lbl">Сейчас вы принимаете брони в</div><div class="chips"><button type="button" class="chip on" data-g="imp" data-v="appevent">AppEvent</button><button type="button" class="chip" data-g="imp" data-v="google">Google Календаре</button><button type="button" class="chip" data-g="imp" data-v="paper">Тетради, мессенджерах</button></div><div class="hint">Подключим календарь AppEvent <b>только на чтение</b>: занятые часы встанут серыми, и сайт не продаст их второй раз. Работать там можно дальше, переходите, когда удобно.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше или пропустить</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>9. Запуск (до открытия)<small>Чек-лист готовности и «Так увидит клиент»; пробная бронь.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Запуск</span><span id="stepNum">9 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Готовность студии</p><div class="grp"><div class="chk y"><span class="c">✓</span><span><b>Вход</b><small>хозяин +7 913 555-01-02</small></span><span></span></div><div class="chk y"><span class="c">✓</span><span><b>Студия</b><small>Белый куб, Новосибирск</small></span><span></span></div><div class="chk y"><span class="c">✓</span><span><b>Сайт</b><small>страница по ссылке</small></span><span></span></div><div class="chk y"><span class="c">✓</span><span><b>Залы</b><small>3 зала</small></span><span></span></div><div class="chk y"><span class="c">✓</span><span><b>Часы</b><small>09:00–22:00</small></span><span></span></div><div class="chk y"><span class="c">✓</span><span><b>Оплата</b><small>предоплата 50 %</small></span><span></span></div><div class="chk y"><span class="c">✓</span><span><b>Правила и документы</b><small>готово</small></span><span></span></div><div class="chk"><span class="c"></span><span><b>Услуги, команда, переезд</b><small>можно позже</small></span><span></span></div></div><div class="lbl">Так увидит клиент</div><div class="wid"><b>Белый</b> · <span style="color:var(--a-ink2);font-size:13px">чт 15 окт · время Новосибирска</span><div class="slots"><span>10:00</span><span class="busy">12:00</span><span>14:00</span><span>16:00</span></div></div><div class="hint">Сначала сделайте <b>пробную бронь</b>: пройдёте путь клиента, она придёт в админку с пометкой «проба» и токен не спишет.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Открыть запись</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>9а. Запуск: запись открыта<small>После «Открыть запись»: ссылка и баланс токенов.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Запуск</span><span id="stepNum">9 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i></div>
+      </div>
+      <div class="pbody" id="screen"><div class="done-hero"><div class="big" aria-hidden="true">✓</div><p class="ph" style="margin-top:10px">Запись открыта</p><p class="sub">«Белый куб» принимает брони.</p></div><div class="grp"><div class="chk y"><span class="c">✓</span><span><b>Ссылка на запись</b><small>bronios.app/b/pl214</small></span><button type="button" class="lnk">Копировать</button></div><div class="chk"><span class="c"></span><span><b>Окно брони на сайт</b><small>Код для вставки и цвета под ваш сайт</small></span><button type="button" class="lnk">Открыть</button></div></div><div class="hint">Баланс: <b>20 токенов</b> <span class="tag t-no">тестовое число</span>. Первая настоящая бронь спишет один токен.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Открыть админку</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure></div></section><section class="grp-sh" id="g1"><h2>Варианты шагов</h2><p>Те же шаги в других состояниях: способ входа, режим сайта, оплата, источник старых броней, запуск.</p><div class="row-sh"><figure class="shot ob" style="width:390px"><figcaption>1а. Вход: студия нашла сама<small>Пришли без приглашения, дальше поля пустые.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Вход</span><span id="stepNum">1 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Подключите студию к BroniOS</p><div class="lbl">Как владелец сюда попал</div><div class="chips"><button type="button" class="chip" data-g="entry" data-v="invite">Приглашение</button><button type="button" class="chip on" data-g="entry" data-v="self">Сам</button><button type="button" class="chip" data-g="entry" data-v="claim">«Это моя студия»</button></div><p class="sub">Вы нашли BroniOS сами. Дальше все поля будут пустыми.</p><div class="grp"><div class="fld"><label for="f-phone">Ваш телефон</label><input class="inp" id="f-phone" inputmode="tel" value="+7 913 555-01-02"></div></div><div class="lbl">Код пришёл в Telegram</div><div class="code"><span>4</span><span>8</span><span>1</span><span>7</span></div><div class="hint"><b>Заглушка.</b> Куда приходит код, ещё не решено (Telegram, Max, ВК или звонок). Платных SMS не будет.</div><div class="hint">Этот телефон станет <b>хозяином</b> студии. Директора и администраторов вы позовёте позже.</div><div class="hint">Черновик студии хранится <b>12 часов</b> с вашего последнего действия. Не успеете открыть запись, за час до удаления придёт напоминание.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button" hidden="">Назад</button><button class="btn" id="next" type="button">Войти</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>1б. Вход: «Это моя студия»<small>Из каталога студий.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Вход</span><span id="stepNum">1 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Подключите студию к BroniOS</p><div class="lbl">Как владелец сюда попал</div><div class="chips"><button type="button" class="chip" data-g="entry" data-v="invite">Приглашение</button><button type="button" class="chip" data-g="entry" data-v="self">Сам</button><button type="button" class="chip on" data-g="entry" data-v="claim">«Это моя студия»</button></div><div class="hint"><b>Клиенты нашли вас в каталоге BroniOS.</b> За месяц карточку «Белый куб» открыли 40 раз. Подтвердите, что студия ваша, и подключите запись. Промокод: 3 месяца работы виджета.</div><div class="grp"><div class="fld"><label for="f-phone">Ваш телефон</label><input class="inp" id="f-phone" inputmode="tel" value="+7 913 555-01-02"></div></div><div class="lbl">Код пришёл в Telegram</div><div class="code"><span>4</span><span>8</span><span>1</span><span>7</span></div><div class="hint"><b>Заглушка.</b> Куда приходит код, ещё не решено (Telegram, Max, ВК или звонок). Платных SMS не будет.</div><div class="hint">Этот телефон станет <b>хозяином</b> студии. Директора и администраторов вы позовёте позже.</div><div class="hint">Черновик студии хранится <b>12 часов</b> с вашего последнего действия. Не успеете открыть запись, за час до удаления придёт напоминание.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button" hidden="">Назад</button><button class="btn" id="next" type="button">Войти</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>3а. Сайт: платформа<small>Залы, цены и услуги придут с сайта.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Сайт</span><span id="stepNum">3 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Где клиенты будут бронировать?</p><button type="button" class="card on" data-g="mode" data-v="site"><b>На сайте нашей платформы</b><small>Залы, цены и услуги берутся с сайта, вводить второй раз не нужно.</small></button><button type="button" class="card" data-g="mode" data-v="own"><b>На своём сайте</b><small>Тильда, Vigbo, WordPress… Вставите окно брони кодом или кнопкой. Залы и цены заводите здесь.</small></button><button type="button" class="card" data-g="mode" data-v="none"><b>Сайта нет</b><small>Получите свою страницу записи по ссылке для ВК, Instagram и мессенджеров. Залы и цены заводите здесь.</small></button><div class="hint">Режим можно поменять позже, брони при этом не теряются.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>3б. Сайт: свой сайт<small>Окно брони вставляется на чужой сайт.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Сайт</span><span id="stepNum">3 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Где клиенты будут бронировать?</p><button type="button" class="card" data-g="mode" data-v="site"><b>На сайте нашей платформы</b><small>Залы, цены и услуги берутся с сайта, вводить второй раз не нужно.</small></button><button type="button" class="card on" data-g="mode" data-v="own"><b>На своём сайте</b><small>Тильда, Vigbo, WordPress… Вставите окно брони кодом или кнопкой. Залы и цены заводите здесь.</small></button><button type="button" class="card" data-g="mode" data-v="none"><b>Сайта нет</b><small>Получите свою страницу записи по ссылке для ВК, Instagram и мессенджеров. Залы и цены заводите здесь.</small></button><div class="hint">Режим можно поменять позже, брони при этом не теряются.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>4а. Залы: правка второго зала<small>«Циклорама», окон нет.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Залы</span><span id="stepNum">4 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Залы</p><div class="grp"><div class="hall"><span class="dot" style="background:var(--h2)"></span><span><b>Белый</b><small>1–5 чел. 1 400 ₽/ч · 6–10 чел. 1 700 ₽/ч · от 1 ч · окна: ЮЗ</small></span><button type="button" class="lnk" data-edit="0">Изм.</button></div><div class="hall"><span class="dot" style="background:var(--h1)"></span><span><b>Циклорама</b><small>1–5 чел. 1 800 ₽/ч · 6–10 чел. 2 100 ₽/ч · от 2 ч · окна: нет</small></span><button type="button" class="lnk" data-edit="1">Изм.</button></div></div><button type="button" class="lnk" id="addHall">+ Добавить зал</button><div class="lbl">Зал «Циклорама»</div><div class="grp"><div class="fld"><label for="h-n">Название</label><input class="inp" id="h-n" value="Циклорама"></div><div class="fld"><label for="h-p1">Цена за час, 1–5 человек</label><input class="inp" id="h-p1" inputmode="numeric" value="1800"></div><div class="fld"><label for="h-p2">Цена за час, 6–10 человек</label><input class="inp" id="h-p2" inputmode="numeric" value="2100"></div></div><div class="lbl">Куда выходят окна</div><div class="compass"><button type="button" class="chip" data-g="win" data-v="С">С</button><button type="button" class="chip" data-g="win" data-v="СВ">СВ</button><button type="button" class="chip" data-g="win" data-v="В">В</button><button type="button" class="chip" data-g="win" data-v="ЮВ">ЮВ</button><button type="button" class="chip" data-g="win" data-v="Ю">Ю</button><button type="button" class="chip" data-g="win" data-v="ЮЗ">ЮЗ</button><button type="button" class="chip" data-g="win" data-v="З">З</button><button type="button" class="chip" data-g="win" data-v="СЗ">СЗ</button></div><div class="chips"><button type="button" class="chip on" data-g="win" data-v="нет">Окон нет</button></div><div class="hint">По окнам BroniOS подскажет клиенту свет в выбранный час: прямое солнце, закат или рассеянный свет. Расчёт солнца из Light Plan.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>4б. Залы: добавлен новый зал<small>Кнопка «Добавить зал» только в режимах не с платформы.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Залы</span><span id="stepNum">4 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Залы</p><div class="grp"><div class="hall"><span class="dot" style="background:var(--h2)"></span><span><b>Белый</b><small>1–5 чел. 1 400 ₽/ч · 6–10 чел. 1 700 ₽/ч · от 1 ч · окна: ЮЗ</small></span><button type="button" class="lnk" data-edit="0">Изм.</button></div><div class="hall"><span class="dot" style="background:var(--h1)"></span><span><b>Циклорама</b><small>1–5 чел. 1 800 ₽/ч · 6–10 чел. 2 100 ₽/ч · от 2 ч · окна: нет</small></span><button type="button" class="lnk" data-edit="1">Изм.</button></div><div class="hall"><span class="dot" style="background:var(--h3)"></span><span><b>Новый зал</b><small>1–5 чел. 1 200 ₽/ч · 6–10 чел. 1 500 ₽/ч · от 1 ч · окна: нет</small></span><button type="button" class="lnk" data-edit="2">Изм.</button></div></div><button type="button" class="lnk" id="addHall">+ Добавить зал</button><div class="lbl">Зал «Новый зал»</div><div class="grp"><div class="fld"><label for="h-n">Название</label><input class="inp" id="h-n" value="Новый зал"></div><div class="fld"><label for="h-p1">Цена за час, 1–5 человек</label><input class="inp" id="h-p1" inputmode="numeric" value="1200"></div><div class="fld"><label for="h-p2">Цена за час, 6–10 человек</label><input class="inp" id="h-p2" inputmode="numeric" value="1500"></div></div><div class="lbl">Куда выходят окна</div><div class="compass"><button type="button" class="chip" data-g="win" data-v="С">С</button><button type="button" class="chip" data-g="win" data-v="СВ">СВ</button><button type="button" class="chip" data-g="win" data-v="В">В</button><button type="button" class="chip" data-g="win" data-v="ЮВ">ЮВ</button><button type="button" class="chip" data-g="win" data-v="Ю">Ю</button><button type="button" class="chip" data-g="win" data-v="ЮЗ">ЮЗ</button><button type="button" class="chip" data-g="win" data-v="З">З</button><button type="button" class="chip" data-g="win" data-v="СЗ">СЗ</button></div><div class="chips"><button type="button" class="chip on" data-g="win" data-v="нет">Окон нет</button></div><div class="hint">По окнам BroniOS подскажет клиенту свет в выбранный час: прямое солнце, закат или рассеянный свет. Расчёт солнца из Light Plan.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>6а. Оплата: онлайн, 100 %<small>Онлайн-оплата, предоплата 100 %, отмена нельзя, онлайн-касса.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Оплата</span><span id="stepNum">6 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Оплата от клиентов</p><button type="button" class="card" data-g="pay" data-v="manual"><b>Перевод вручную</b><small>Клиент переводит по вашим реквизитам и прикладывает скриншот к брони, администратор подтверждает.</small></button><button type="button" class="card on" data-g="pay" data-v="online"><b>Онлайн-оплата</b><small>Нужен договор с банком. Можно подключить позже.</small></button><div class="lbl">Предоплата</div><div class="chips"><button type="button" class="chip on" data-g="pre" data-v="100">100 %</button><button type="button" class="chip" data-g="pre" data-v="50">50 %</button><button type="button" class="chip" data-g="pre" data-v="30">30 %</button><button type="button" class="chip" data-g="pre" data-v="0">Без предоплаты</button></div><div class="lbl">Бесплатная отмена</div><div class="chips"><button type="button" class="chip on" data-g="cancel" data-v="0">нельзя</button><button type="button" class="chip" data-g="cancel" data-v="24">за 24 ч</button><button type="button" class="chip" data-g="cancel" data-v="48">за 48 ч</button></div><div class="lbl">Чеки</div><div class="chips"><button type="button" class="chip" data-g="receipt" data-v="nalog">«Мой налог»</button><button type="button" class="chip on" data-g="receipt" data-v="kassa">Онлайн-касса</button></div><div class="hint">Пример для клиента: «Белый» 2 ч = 2 800 ₽, предоплата 100 % = <b>2 800 ₽</b>.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>7а. Правила: согласие снято<small>Без обеих галочек кнопка «Дальше» недоступна.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Правила и документы</span><span id="stepNum">7 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Правила и документы</p><div class="grp"><div class="toggle"><span>Правила студии<br><small style="color:var(--a-ink2)">Шаблон: обувь, животные, конфетти, опоздание. Правите под себя.</small></span><input type="checkbox" class="sw" id="d-r" checked=""></div><div class="toggle"><span>Политика обработки данных и согласие<br><small style="color:var(--a-ink2)">Шаблон платформы, проверенный юристом. Вы вписываете только реквизиты.</small></span><input type="checkbox" class="sw" id="d-c"></div></div><div class="lbl">Кто принимает оплату</div><div class="chips"><button type="button" class="chip on" data-g="legal" data-v="self">Самозанятый</button><button type="button" class="chip" data-g="legal" data-v="ip">ИП</button><button type="button" class="chip" data-g="legal" data-v="ooo">ООО</button></div><div class="grp"><div class="fld"><label for="d-fio">ФИО или название</label><input class="inp" id="d-fio" placeholder="Как в документах" value=""></div><div class="fld"><label for="d-inn">ИНН</label><input class="inp" id="d-inn" inputmode="numeric" placeholder="12 цифр" value=""></div></div><div class="hint">Клиент увидит две отдельные галочки: «С правилами студии согласен» и «Согласен на обработку данных».</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button" disabled="">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>8а. Дополнительно: услуга, команда, Google<small>Выбран гаффер, включено приглашение администратора, старый календарь Google.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Дополнительно · можно пропустить</span><span id="stepNum">8 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Дополнительно</p><p class="sub">Можно пропустить, всё это ждёт в списке «Готовность студии».</p><div class="lbl">Услуги</div><div class="chips"><button type="button" class="chip on" data-g="svc" data-v="gaf">Гаффер · за час</button><button type="button" class="chip on" data-g="svc" data-v="clean">Уборка · фикс.</button><button type="button" class="chip" data-g="svc" data-v="pets">Съёмка с животными</button><button type="button" class="chip">+ Своя</button></div><div class="lbl">Команда</div><div class="grp"><div class="toggle"><span>Позвать администратора по номеру телефона</span><input type="checkbox" class="sw" id="t-t" checked=""></div></div><div class="lbl">Сейчас вы принимаете брони в</div><div class="chips"><button type="button" class="chip" data-g="imp" data-v="appevent">AppEvent</button><button type="button" class="chip on" data-g="imp" data-v="google">Google Календаре</button><button type="button" class="chip" data-g="imp" data-v="paper">Тетради, мессенджерах</button></div><div class="hint">Подключим ваш Google Календарь <b>только на чтение</b>: занятые часы встанут серыми, и сайт не продаст их второй раз. Работать там можно дальше, переходите, когда удобно.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше или пропустить</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>8б. Дополнительно: брони на бумаге<small>Подсказка про ручной перенос броней.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Дополнительно · можно пропустить</span><span id="stepNum">8 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Дополнительно</p><p class="sub">Можно пропустить, всё это ждёт в списке «Готовность студии».</p><div class="lbl">Услуги</div><div class="chips"><button type="button" class="chip on" data-g="svc" data-v="gaf">Гаффер · за час</button><button type="button" class="chip on" data-g="svc" data-v="clean">Уборка · фикс.</button><button type="button" class="chip" data-g="svc" data-v="pets">Съёмка с животными</button><button type="button" class="chip">+ Своя</button></div><div class="lbl">Команда</div><div class="grp"><div class="toggle"><span>Позвать администратора по номеру телефона</span><input type="checkbox" class="sw" id="t-t" checked=""></div></div><div class="lbl">Сейчас вы принимаете брони в</div><div class="chips"><button type="button" class="chip" data-g="imp" data-v="appevent">AppEvent</button><button type="button" class="chip" data-g="imp" data-v="google">Google Календаре</button><button type="button" class="chip on" data-g="imp" data-v="paper">Тетради, мессенджерах</button></div><div class="hint">Перенесёте ближайшие брони руками в календаре. Историю можно не переносить.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше или пропустить</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>2а. Студия: пустые поля<small>Если студия нашла BroniOS сама.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Студия</span><span id="stepNum">2 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Ваша студия</p><div class="grp"><div class="fld"><label for="f-name">Название</label><input class="inp" id="f-name" data-k="name" value=""></div><div class="fld"><label for="f-city">Город</label><input class="inp" id="f-city" data-k="city" value="Новосибирск"></div><div class="fld"><label for="f-addr">Адрес и как найти вход</label><input class="inp" id="f-addr" data-k="addr" value=""></div></div><div class="map" aria-label="Точка на карте"><span class="pin"></span><small>Передвиньте точку на здание</small></div><div class="hint">Часовой пояс по точке: <b>Новосибирск, UTC+7</b>. Клиенты из других городов увидят время студии с пометкой.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>2б. Студия: из каталога<small>Название и адрес подставлены из каталога 2ГИС.</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Студия</span><span id="stepNum">2 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Ваша студия</p><div class="hint">Название и адрес взяты из каталога (источник: 2ГИС). Проверьте и поправьте, если нужно.</div><div class="grp"><div class="fld"><label for="f-name">Название</label><input class="inp" id="f-name" data-k="name" value="Белый куб"></div><div class="fld"><label for="f-city">Город</label><input class="inp" id="f-city" data-k="city" value="Новосибирск"></div><div class="fld"><label for="f-addr">Адрес и как найти вход</label><input class="inp" id="f-addr" data-k="addr" value="ул. Фабричная, 10, 3 этаж"></div></div><div class="map" aria-label="Точка на карте"><span class="pin"></span><small>Передвиньте точку на здание</small></div><div class="hint">Часовой пояс по точке: <b>Новосибирск, UTC+7</b>. Клиенты из других городов увидят время студии с пометкой.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure><figure class="shot ob" style="width:390px"><figcaption>4в. Залы: пришли с сайта<small>В режиме «сайт платформы» подсказка и без кнопки «Добавить зал».</small></figcaption><div class="dev"><div class="phone" aria-label="Телефон владельца студии">
+      <div class="ptop">
+        <div class="bar"><span id="stepName">Залы</span><span id="stepNum">4 из 9</span></div>
+        <div class="prog" id="prog"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div>
+      </div>
+      <div class="pbody" id="screen"><p class="ph">Залы</p><div class="hint">Залы и цены пришли с вашего сайта. Здесь можно только проверить; правка цен идёт там же, где на сайте.</div><div class="grp"><div class="hall"><span class="dot" style="background:var(--h2)"></span><span><b>Белый</b><small>1–5 чел. 1 400 ₽/ч · 6–10 чел. 1 700 ₽/ч · от 1 ч · окна: ЮЗ</small></span><button type="button" class="lnk" data-edit="0">Изм.</button></div><div class="hall"><span class="dot" style="background:var(--h1)"></span><span><b>Циклорама</b><small>1–5 чел. 1 800 ₽/ч · 6–10 чел. 2 100 ₽/ч · от 2 ч · окна: нет</small></span><button type="button" class="lnk" data-edit="1">Изм.</button></div></div><div class="lbl">Зал «Белый»</div><div class="grp"><div class="fld"><label for="h-n">Название</label><input class="inp" id="h-n" value="Белый"></div><div class="fld"><label for="h-p1">Цена за час, 1–5 человек</label><input class="inp" id="h-p1" inputmode="numeric" value="1400"></div><div class="fld"><label for="h-p2">Цена за час, 6–10 человек</label><input class="inp" id="h-p2" inputmode="numeric" value="1700"></div></div><div class="lbl">Куда выходят окна</div><div class="compass"><button type="button" class="chip" data-g="win" data-v="С">С</button><button type="button" class="chip" data-g="win" data-v="СВ">СВ</button><button type="button" class="chip" data-g="win" data-v="В">В</button><button type="button" class="chip" data-g="win" data-v="ЮВ">ЮВ</button><button type="button" class="chip" data-g="win" data-v="Ю">Ю</button><button type="button" class="chip on" data-g="win" data-v="ЮЗ">ЮЗ</button><button type="button" class="chip" data-g="win" data-v="З">З</button><button type="button" class="chip" data-g="win" data-v="СЗ">СЗ</button></div><div class="chips"><button type="button" class="chip" data-g="win" data-v="нет">Окон нет</button></div><div class="hint">По окнам BroniOS подскажет клиенту свет в выбранный час: прямое солнце, закат или рассеянный свет. Расчёт солнца из Light Plan.</div></div>
+      <div class="pfoot"><button class="btn ghost" id="back" type="button">Назад</button><button class="btn" id="next" type="button">Дальше</button></div>
+    </div><div class="fold" style="top:760px"><span>конец первого экрана</span></div></div></figure></div></section></div></div>
+<script>
+(function(){
+var vp=document.getElementById("vp"),stg=document.getElementById("stage"),zv=document.getElementById("zoomv"),acc=document.getElementById("acc");
+var T={x:24,y:110,s:.35};
+function ap(){stg.style.transform="translate("+T.x+"px,"+T.y+"px) scale("+T.s+")";zv.textContent=Math.round(T.s*100)+"%"}
+function zoomAt(k,cx,cy){var ns=Math.min(3,Math.max(.05,T.s*k));k=ns/T.s;T.x=cx-(cx-T.x)*k;T.y=cy-(cy-T.y)*k;T.s=ns;ap()}
+function fitEl(el){var tb=document.getElementById("bar").getBoundingClientRect().bottom+28,W=vp.clientWidth,Hh=vp.clientHeight-tb-16,w=el.offsetWidth,h=el.offsetHeight,x=0,y=0,e=el;while(e&&e!==stg){x+=e.offsetLeft;y+=e.offsetTop;e=e.offsetParent}
+  var s=Math.min((W-48)/w,Hh/h,1.2);T.s=s;T.x=(W-w*s)/2-x*s;T.y=tb+Math.max(0,(Hh-h*s)/2)-y*s;ap()}
+vp.addEventListener("wheel",function(e){e.preventDefault();var r=vp.getBoundingClientRect();
+  if(e.ctrlKey||e.metaKey||!e.shiftKey&&Math.abs(e.deltaX)<1){zoomAt(Math.exp(-e.deltaY*(e.ctrlKey?0.01:0.0016)),e.clientX-r.left,e.clientY-r.top)}
+  else{T.x-=e.deltaX||e.deltaY;ap()}},{passive:false});
+var P={},last=null,pinch=null;
+vp.addEventListener("pointerdown",function(e){vp.setPointerCapture(e.pointerId);P[e.pointerId]={x:e.clientX,y:e.clientY};vp.classList.add("drag");
+  var ids=Object.keys(P);if(ids.length===2){var a=P[ids[0]],b=P[ids[1]];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),mx:(a.x+b.x)/2,my:(a.y+b.y)/2}}});
+vp.addEventListener("pointermove",function(e){if(!P[e.pointerId])return;var o=P[e.pointerId];var ids=Object.keys(P);
+  if(ids.length===1){T.x+=e.clientX-o.x;T.y+=e.clientY-o.y;ap()}
+  P[e.pointerId]={x:e.clientX,y:e.clientY};
+  if(ids.length===2&&pinch){var a=P[ids[0]],b=P[ids[1]],dd=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2,my=(a.y+b.y)/2;T.x+=mx-pinch.mx;T.y+=my-pinch.my;zoomAt(dd/pinch.d,mx,my);pinch={d:dd,mx:mx,my:my}}});
+function up(e){delete P[e.pointerId];if(Object.keys(P).length<2)pinch=null;if(!Object.keys(P).length)vp.classList.remove("drag")}
+vp.addEventListener("pointerup",up);vp.addEventListener("pointercancel",up);
+document.getElementById("zin").onclick=function(){zoomAt(1.25,vp.clientWidth/2,vp.clientHeight/2)};
+document.getElementById("zout").onclick=function(){zoomAt(0.8,vp.clientWidth/2,vp.clientHeight/2)};
+document.getElementById("zfit").onclick=function(){fitEl(stg)};
+document.getElementById("z100").onclick=function(){zoomAt(1/T.s,vp.clientWidth/2,vp.clientHeight/2)};
+[].forEach.call(document.querySelectorAll("[data-g]"),function(b){b.onclick=function(){fitEl(document.getElementById("g"+b.dataset.g))}});
+var TPL=document.getElementById("acctpl").textContent;
+function onC(hex){var n=parseInt(hex.slice(1),16),c=[n>>16,n>>8&255,n&255].map(function(v){v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)}),L=.2126*c[0]+.7152*c[1]+.0722*c[2];return 1.05/(L+.05)>=(L+.05)/.05?"#ffffff":"#17140f"}
+function setAcc(c){acc.textContent=c?TPL.split("{A}").join(c).split("{ON}").join(onC(c)):"";
+  [].forEach.call(document.querySelectorAll(".accsw"),function(b){b.classList.toggle("on",b.dataset.c===c)});if(c)document.getElementById("cpick").value=c;
+  try{localStorage.setItem("sheetAcc",c)}catch(e){}}
+[].forEach.call(document.querySelectorAll(".accsw"),function(b){b.onclick=function(){setAcc(b.dataset.c)}});
+document.getElementById("cpick").addEventListener("input",function(e){setAcc(e.target.value)});
+[].forEach.call(document.querySelectorAll("[data-th]"),function(b){b.onclick=function(){var v=b.dataset.th;if(v)document.documentElement.setAttribute("data-theme",v);else document.documentElement.removeAttribute("data-theme");
+  [].forEach.call(document.querySelectorAll("[data-th]"),function(x){x.classList.toggle("on",x===b)})}});
+document.addEventListener("keydown",function(e){if(e.key==="0")fitEl(stg);if(e.key==="+"||e.key==="=")document.getElementById("zin").click();if(e.key==="-")document.getElementById("zout").click()});
+try{var sv=localStorage.getItem("sheetAcc");if(sv)setAcc(sv)}catch(e){}
+requestAnimationFrame(function(){fitEl(document.getElementById("g0"))});
+})();
+</script>
+</body></html>
