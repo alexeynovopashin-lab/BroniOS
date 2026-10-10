@@ -225,6 +225,18 @@ button{cursor:pointer}
 .fab:active{transform:scale(.97)}
 .fab svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round}
 
+/* Тестовый стенд: полоса над приложением и окно «Проверка связи» */
+.teststand{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;padding:8px 12px;
+  border-radius:14px;background:rgba(255,149,0,.14);color:#8a4b00;font-size:13px;font-weight:600}
+.teststand[hidden]{display:none}
+.teststand button{border:0;background:#8a4b00;color:#fff;border-radius:10px;padding:6px 11px;font-size:13px;font-weight:600}
+.chk-list{display:grid;gap:8px;margin:4px 0 14px}
+.chk-row{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border-radius:14px;padding:10px 12px;box-shadow:var(--si);font-size:14px}
+.chk-row i{font-style:normal;flex:none;width:22px;text-align:center}
+.chk-row small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.chk-links{display:grid;gap:8px}
+.chk-links a{display:block;text-align:center;padding:11px;border-radius:14px;background:var(--bg);box-shadow:var(--s2),var(--s1);color:var(--text);text-decoration:none;font-weight:600;font-size:14px}
+
 /* Overlay / Sheet */
 .overlay{
   display:none;position:fixed;inset:0;z-index:50;
@@ -406,6 +418,7 @@ button{cursor:pointer}
 </svg>
 
 <div class="app">
+  <div class="teststand" id="testStand" hidden><span>Тестовый стенд · календари тестовые</span><button id="btnCheck">Проверка связи</button></div>
   <div class="top">
     <div>
       <div class="brand" id="todayCount">Сегодня</div>
@@ -509,6 +522,18 @@ button{cursor:pointer}
       <button data-f="pay">Без предоплаты</button>
     </div>
     <div id="isBody"></div>
+  </div>
+</div>
+
+<!-- Проверка связи тестового стенда -->
+<div class="overlay" id="ovCheck">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>Проверка связи</h2>
+      <button class="ibtn" id="ckClose" aria-label="Закрыть"><svg viewBox="0 0 24 24"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="chk-list" id="ckList"></div>
+    <div class="chk-links" id="ckLinks"></div>
   </div>
 </div>
 
@@ -2484,7 +2509,7 @@ $("stTabs").querySelectorAll("button").forEach(b => {
 $("ovBooking").addEventListener("click", e => { if (e.target === $("ovBooking")) closeBooking(); });
 $("ovSettings").addEventListener("click", e => { if (e.target === $("ovSettings")) closeSettings(); });
 
-// Автосинхронизация каждые 5 минут
+// Автосинхронизация: каждые 5 минут (в тестовом режиме — каждую минуту)
 if (syncTimer) clearInterval(syncTimer);
 syncTimer = setInterval(() => {
   const hallsToLoad = allHallsMode ? cfg.halls.map(h => h.id) : [hallId];
@@ -2510,7 +2535,7 @@ syncTimer = setInterval(() => {
     endDate.setHours(23,59,59,999);
   }
   loadGoogleEvents(hallsToLoad, startDate, endDate);
-}, 300000);
+}, CALENDAR_MODE === "test" ? 60000 : 300000);   // в тесте чаще: заявки с сайта должны появляться быстро
 
 /* Опрос заявок на продление — своим таймером, чаще, чем синхронизация
    календаря: это переговоры со сроком ответа в минутах, а не фоновая
@@ -2519,6 +2544,76 @@ let rentPollTimer = null;
 if (rentPollTimer) clearInterval(rentPollTimer);
 rentPollTimer = setInterval(loadRentRequests, 20000);
 loadRentRequests();
+
+/* ========== Тестовый стенд ==========
+   Полоса видна только пока CALENDAR_MODE = "test". «Проверка связи» ходит теми же
+   путями, что и приложение, и по-русски говорит, что именно не работает —
+   чтобы не гадать по пустому календарю. Ключи и токены не показываются. */
+const SITE_TEST_PAGE = "https://tomson.website.yandexcloud.net/test-bron/";
+const WIDGET_PAGE = "https://alexeynovopashin-lab.github.io/BroniOS/widget/?hall=edison";
+function initTestStand() {
+  if (CALENDAR_MODE !== "test") return;
+  $("testStand").hidden = false;
+  $("btnCheck").onclick = runConnectionCheck;
+  $("ckClose").onclick = () => $("ovCheck").classList.remove("show");
+  $("ovCheck").addEventListener("click", e => { if (e.target === $("ovCheck")) $("ovCheck").classList.remove("show"); });
+}
+async function runConnectionCheck() {
+  const list = $("ckList"), links = $("ckLinks");
+  $("ovCheck").classList.add("show");
+  list.textContent = "";
+  links.textContent = "";
+  const row = (icon, title, note) => {
+    const d = document.createElement("div"); d.className = "chk-row";
+    const i = document.createElement("i"); i.textContent = icon;
+    const t = document.createElement("div"); t.textContent = title;
+    if (note) { const n = document.createElement("small"); n.textContent = note; t.append(n); }
+    d.append(i, t); list.append(d); return { set(ic, ti, no) { i.textContent = ic; t.textContent = ti; if (no) { const n = document.createElement("small"); n.textContent = no; t.append(n); } } };
+  };
+  const timeout = (ms) => AbortSignal.timeout ? AbortSignal.timeout(ms) : undefined;
+
+  const r1 = row("…", "Сервер связи (Worker)");
+  let alive = false;
+  try {
+    const res = await fetch(WORKER_URL + "/", { signal: timeout(10000) });
+    alive = res.ok;
+    r1.set(alive ? "✅" : "❌", alive ? "Сервер связи отвечает" : "Сервер связи ответил ошибкой " + res.status);
+  } catch { r1.set("❌", "Сервер связи не отвечает", "Проверьте интернет. Если интернет есть — Worker не выложен под именем broni-auth."); }
+
+  const r2 = row("…", "Доступ к тестовому календарю Эдисона");
+  let events = null;
+  if (alive) {
+    try {
+      const from = new Date(), to = new Date(Date.now() + 60 * 86400000);
+      const url = `${WORKER_URL}/calendar/calendars/${encodeURIComponent(GOOGLE_CALENDARS.edison)}/events?timeMin=${from.toISOString()}&timeMax=${to.toISOString()}&singleEvents=true&maxResults=250`;
+      const res = await fetch(url, { headers: WORKER_HEADERS, signal: timeout(15000) });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) { events = data.items || []; r2.set("✅", `Календарь читается, событий на 60 дней: ${events.length}`); }
+      else if (res.status === 401) r2.set("❌", "Сервер не принял ключ администратора", "Секрет STUDIO_KEY у Worker'а не совпадает с ключом в приложении.");
+      else if (/Not authenticated|invalid_grant|refresh/i.test(JSON.stringify(data))) r2.set("❌", "Google не подключён", "Откройте «Подключить Google» ниже и войдите аккаунтом, которому принадлежат тестовые календари.");
+      else r2.set("❌", "Календарь ответил ошибкой " + res.status, String(data.error?.message || data.error || "").slice(0, 140));
+    } catch { r2.set("❌", "Календарь не ответил вовремя"); }
+  } else r2.set("—", "Пропущено: сервер связи не отвечает");
+
+  const r3 = row("…", "Приём заявок с сайта");
+  if (alive) {
+    try {
+      const res = await fetch(WORKER_URL + "/public/config", { signal: timeout(10000) });
+      r3.set(res.ok ? "✅" : "❌", res.ok ? "Окно брони на сайте может записывать клиентов" : (res.status === 404 ? "Приём заявок выключен или Worker старой версии" : "Ответ " + res.status),
+        res.ok ? "" : "Нужно выложить новую версию Worker'а (переменная PUBLIC_BOOKING_MODE = test).");
+    } catch { r3.set("❌", "Не удалось проверить приём заявок"); }
+  } else r3.set("—", "Пропущено: сервер связи не отвечает");
+
+  if (events) {
+    const web = events.filter(e => /^🌐/.test(e.summary || ""));
+    row("🌐", `Заявок с сайта в Эдисоне: ${web.length}`, web.length ? "Они же видны в календаре приложения (кнопка обновления сверху)." : "Пока ни одной: отправьте тестовую заявку со страницы сайта.");
+  }
+
+  [["Тестовая страница на сайте", SITE_TEST_PAGE], ["Окно брони отдельно", WIDGET_PAGE], ["Подключить Google", WORKER_URL + "/login"]].forEach(([label, href]) => {
+    const a = document.createElement("a"); a.href = href; a.target = "_blank"; a.rel = "noopener"; a.textContent = label; links.append(a);
+  });
+}
+initTestStand();
 
 /* SW */
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(()=>{});

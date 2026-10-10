@@ -20,3 +20,5 @@ id = "deefb9273faf415bac8b31388112bc18"
 
 [vars]
 POST_AUTH_REDIRECT = "https://alexeynovopashin-lab.github.io/BroniOS/"
+# Публичная запись из окна брони на сайте: только пока календари тестовые (см. index.js)
+PUBLIC_BOOKING_MODE = "test"

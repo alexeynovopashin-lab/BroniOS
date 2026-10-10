@@ -313,6 +313,150 @@ async function handleBookingMatch(request, env) {
   return json({ match: false }, 200, request);
 }
 
+/* ========== Публичная запись клиента (тестовый стенд, 10.10.2026) ==========
+   Страница-окно брони (widget/index.html) стоит на сайте студии и открыта
+   любому посетителю, поэтому ключа администратора у неё быть не может.
+   Здесь три узких входа, которые не отдают ничего лишнего:
+     GET  /public/config  — часы работы, шаг, список залов;
+     GET  /public/busy    — только занятые интервалы (без имён и телефонов);
+     POST /public/request — заявка: событие «🌐 ЗАЯВКА …» в календаре зала.
+   Включается только переменной PUBLIC_BOOKING_MODE = "test" (wrangler.toml)
+   и пока работает на тестовых календарях. Чтобы пустить клиентов в рабочие
+   календари, значение меняют сознательно, а не случайно. */
+const PUBLIC_HOURS = { open: "08:00", close: "23:00" };
+const PUBLIC_STEP_MIN = 30;
+const PUBLIC_MIN_MINUTES = 60;
+const PUBLIC_MAX_MINUTES = 12 * 60;
+const PUBLIC_MAX_DAYS = 90;
+const PUBLIC_HALL_ALIAS = { sfera: "sphere" };
+
+function publicOn(env) { return env.PUBLIC_BOOKING_MODE === "test"; }
+function publicHall(id) {
+  const key = PUBLIC_HALL_ALIAS[id] || id;
+  const hall = STUDIO_CARD.halls.find(h => h.id === key);
+  return hall && HALL_CALENDARS[key] ? { ...hall, calendarId: HALL_CALENDARS[key] } : null;
+}
+function toMin(hhmm) { const [h, m] = hhmm.split(":").map(Number); return h * 60 + m; }
+function isHHMM(v) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(v || ""); }
+function isDate(v) { return /^\d{4}-\d{2}-\d{2}$/.test(v || "") && !Number.isNaN(Date.parse(v + "T00:00:00Z")); }
+// Время Томска как «сдвинутая» дата UTC: смещение постоянное (+07:00), без перехода на летнее.
+function tomskParts(ms) {
+  const d = new Date(ms + 7 * 3600000);
+  const pad = n => String(n).padStart(2, "0");
+  return { date: `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`,
+           time: `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}` };
+}
+function cleanText(v, max) { return String(v || "").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, max); }
+
+// Занятые интервалы зала на указанные дни, в местном времени. Событие через полночь режется по дням.
+async function busyIntervals(env, calendarId, fromDate, toDate) {
+  const token = await getAccessToken(env);
+  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events` +
+    `?timeMin=${encodeURIComponent(fromDate + "T00:00:00" + STUDIO_TZ_OFFSET)}` +
+    `&timeMax=${encodeURIComponent(toDate + "T23:59:59" + STUDIO_TZ_OFFSET)}` +
+    `&singleEvents=true&orderBy=startTime&maxResults=250`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error(`Calendar HTTP ${res.status}`);
+  const data = await res.json();
+  const out = [];
+  for (const ev of data.items || []) {
+    if (ev.status === "cancelled" || !ev.start?.dateTime || !ev.end?.dateTime) continue;
+    const s = tomskParts(Date.parse(ev.start.dateTime));
+    const e = tomskParts(Date.parse(ev.end.dateTime));
+    if (s.date === e.date) { out.push({ date: s.date, start: s.time, end: e.time }); continue; }
+    out.push({ date: s.date, start: s.time, end: "24:00" });
+    out.push({ date: e.date, start: "00:00", end: e.time });
+  }
+  return out;
+}
+
+async function handlePublicConfig(request) {
+  return json({
+    mode: "test", tz: "Asia/Tomsk", hours: PUBLIC_HOURS, stepMin: PUBLIC_STEP_MIN,
+    minMinutes: PUBLIC_MIN_MINUTES, maxDays: PUBLIC_MAX_DAYS,
+    halls: STUDIO_CARD.halls.map(h => ({ id: h.id, name: h.name }))
+  }, 200, request);
+}
+
+async function handlePublicBusy(request, env, url) {
+  const hall = publicHall(url.searchParams.get("hall"));
+  const from = url.searchParams.get("from"), to = url.searchParams.get("to");
+  if (!hall || !isDate(from) || !isDate(to) || to < from) return json({ error: "Bad request" }, 400, request);
+  if ((Date.parse(to) - Date.parse(from)) / 86400000 > 45) return json({ error: "Range too long" }, 400, request);
+  const busy = await busyIntervals(env, hall.calendarId, from, to);
+  return json({ hall: hall.id, busy }, 200, request);
+}
+
+async function handlePublicRequest(request, env) {
+  const b = await request.json().catch(() => null);
+  if (!b) return json({ error: "Bad request" }, 400, request);
+  // Ловушка для ботов: людям это поле не видно. Отвечаем «принято», событие не создаём.
+  if (b.website) return json({ ok: true }, 200, request);
+
+  const hall = publicHall(b.hall);
+  const name = cleanText(b.name, 60);
+  const phone = telFull(b.phone);
+  const guests = Number(b.guests);
+  const note = cleanText(b.note, 300);
+  if (!hall) return json({ error: "Зал не найден" }, 400, request);
+  if (name.length < 2) return json({ error: "Укажите имя" }, 400, request);
+  if (!(phone.length === 11 && phone[0] === "7")) return json({ error: "Проверьте номер телефона" }, 400, request);
+  if (!Number.isInteger(guests) || guests < 1 || guests > 30) return json({ error: "Проверьте число гостей" }, 400, request);
+  if (b.consent !== true) return json({ error: "Нужно согласие с правилами" }, 400, request);
+  if (!isDate(b.date) || !isHHMM(b.start) || !isHHMM(b.end)) return json({ error: "Проверьте дату и время" }, 400, request);
+
+  const s = toMin(b.start), e = toMin(b.end), len = e - s;
+  if (s % PUBLIC_STEP_MIN || e % PUBLIC_STEP_MIN) return json({ error: "Время должно быть кратно получасу" }, 400, request);
+  if (len < PUBLIC_MIN_MINUTES || len > PUBLIC_MAX_MINUTES) return json({ error: "Минимум один час" }, 400, request);
+  if (s < toMin(PUBLIC_HOURS.open) || e > toMin(PUBLIC_HOURS.close)) {
+    return json({ error: `Онлайн-запись с ${PUBLIC_HOURS.open} до ${PUBLIC_HOURS.close}. Нужно раньше или позже — напишите администратору` }, 400, request);
+  }
+  const now = tomskParts(Date.now());
+  if (b.date < now.date || (b.date === now.date && s <= toMin(now.time))) return json({ error: "Это время уже прошло" }, 400, request);
+  if ((Date.parse(b.date) - Date.parse(now.date)) / 86400000 > PUBLIC_MAX_DAYS) return json({ error: "Слишком далёкая дата" }, 400, request);
+
+  // Один и тот же номер: не больше трёх заявок в час (защита от залива тестового календаря).
+  const phoneKey = `pub_phone:${phone}:${Math.floor(Date.now() / 3600000)}`;
+  const seen = parseInt(await env.RATE_LIMIT.get(phoneKey) || "0", 10);
+  if (seen >= 3) return json({ error: "Слишком много заявок с этого номера, попробуйте позже" }, 429, request);
+
+  // Пересечения проверяет сервер, а не окно: пока клиент заполнял форму, время могли занять.
+  const busy = await busyIntervals(env, hall.calendarId, b.date, b.date);
+  if (busy.some(x => x.date === b.date && toMin(x.start) < e && s < toMin(x.end))) {
+    return json({ error: "busy" }, 409, request);
+  }
+  await env.RATE_LIMIT.put(phoneKey, String(seen + 1), { expirationTtl: 3700 });
+
+  const phoneShown = `+7 ${phone.slice(1, 4)} ${phone.slice(4, 7)}-${phone.slice(7, 9)}-${phone.slice(9, 11)}`;
+  const price = Number(b.price);
+  const description = [
+    `Зал: ${hall.name}`,
+    `Телефон: ${phoneShown}`,
+    `Гостей: ${guests}`,
+    "Оплата: -",
+    "Статус: заявка с сайта (тест), ждёт подтверждения администратора",
+    Number.isFinite(price) && price > 0 ? `Стоимость по расчёту окна: ${price} ₽ (не проверено сервером)` : "",
+    note ? `Пожелание клиента: ${note}` : "",
+    "",
+    "Создано окном брони на сайте · тестовый стенд BroniOS"
+  ].filter(Boolean).join("\n");
+
+  const token = await getAccessToken(env);
+  const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(hall.calendarId)}/events`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      summary: `🌐 ЗАЯВКА ${name} ${phoneShown}`,
+      description,
+      start: { dateTime: `${b.date}T${b.start}:00`, timeZone: "Asia/Tomsk" },
+      end:   { dateTime: `${b.date}T${b.end}:00`,   timeZone: "Asia/Tomsk" }
+    })
+  });
+  const ev = await res.json().catch(() => ({}));
+  if (!res.ok || !ev.id) return json({ error: "Не удалось записать заявку, попробуйте ещё раз" }, 502, request);
+  return json({ ok: true, hall: hall.id, date: b.date, start: b.start, end: b.end }, 200, request);
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -405,6 +549,22 @@ export default {
           return json({ error: "Too many requests" }, 429, request);
         }
         return await handleBookingMatch(request, env);
+      }
+
+      if (url.pathname.startsWith("/public/")) {
+        if (!publicOn(env)) return json({ error: "Not found" }, 404, request);
+        if (url.pathname === "/public/config" && request.method === "GET") {
+          return await handlePublicConfig(request);
+        }
+        if (url.pathname === "/public/busy" && request.method === "GET") {
+          if (await isRateLimited(env, request, "public_busy", 60)) return json({ error: "Too many requests" }, 429, request);
+          return await handlePublicBusy(request, env, url);
+        }
+        if (url.pathname === "/public/request" && request.method === "POST") {
+          if (await isRateLimited(env, request, "public_request", 5)) return json({ error: "Слишком часто, подождите минуту" }, 429, request);
+          return await handlePublicRequest(request, env);
+        }
+        return json({ error: "Not found" }, 404, request);
       }
 
       if (url.pathname.startsWith("/calendar/")) {
