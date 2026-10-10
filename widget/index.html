@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Окно брони BroniOS (тест)</title>
+<!-- Окно брони для сайта студии. Тестовый стенд: заявки уходят в ТЕСТОВЫЙ календарь зала
+     через публичные входы Worker'а (/public/*), ключа администратора здесь нет.
+     Параметры адреса: ?hall=edison&tiers=9:1600,15:1800,30:2000&rules=https://… -->
+<style>
+:root{--bg:#f5f1ea;--surface:#fffdf9;--ink:#17140f;--ink2:#6d655a;--line:rgba(23,20,15,.12);--accent:#b4532a;--on:#fff;--busy:#e9e3d8;--busy-ink:#8a8174;--bad:#c0392b;--ok:#2f7a4a;--r:12px;
+  --font:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1a1814;--surface:#24211c;--ink:#f1ece3;--ink2:#a39b8d;--line:rgba(241,236,227,.14);--accent:#e08a5e;--on:#1a1814;--busy:#2f2b25;--busy-ink:#7c7568;color-scheme:dark}}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--font);display:flex;flex-direction:column}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.test{background:var(--ink);color:var(--bg);font-size:12px;text-align:center;padding:4px 8px;letter-spacing:.02em}
+.bar{display:flex;align-items:center;gap:8px;padding:12px 16px 4px;min-height:48px}
+.bar h1{flex:1;font-size:17px;font-weight:700}
+.back{border:0;background:none;color:var(--accent);font-size:15px;padding:6px 4px}
+.scroll{flex:1;overflow-y:auto;padding:4px 16px 16px}
+.foot{border-top:1px solid var(--line);background:var(--surface);padding:10px 16px 14px;display:grid;gap:8px}
+.frow{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.frow b{font-size:17px;font-variant-numeric:tabular-nums}
+.frow span{color:var(--ink2);font-size:13px}
+.go{border:0;background:var(--accent);color:var(--on);border-radius:var(--r);padding:13px;font-weight:700;font-size:16px;width:100%}
+.go[disabled]{opacity:.4;cursor:default}
+.hint{font-size:13px;color:var(--ink2)}
+.err{color:var(--bad);font-size:13.5px}
+h2{font-size:15px;font-weight:700;margin:14px 0 8px}
+.mh{display:flex;align-items:center;justify-content:space-between;margin:6px 0 8px}
+.mh b{font-size:17px;text-transform:capitalize}
+.mh button{border:1px solid var(--line);background:var(--surface);border-radius:999px;width:36px;height:36px;font-size:18px}
+.mh button[disabled]{opacity:.3}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal .dow{font-size:12px;color:var(--ink2);padding:4px 0}
+.cal button{border:1px solid var(--line);background:var(--surface);border-radius:10px;aspect-ratio:1/1;font-size:15px;font-variant-numeric:tabular-nums}
+.cal button[disabled]{background:none;border-color:transparent;color:var(--busy-ink);opacity:.45;cursor:default}
+.cal button.today{border-color:var(--accent)}
+.cal .pad{visibility:hidden}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:14px;font-variant-numeric:tabular-nums}
+.chips button.on{background:var(--accent);border-color:var(--accent);color:var(--on);font-weight:600}
+.chips button[disabled]{background:var(--busy);color:var(--busy-ink);border-color:transparent;text-decoration:line-through;cursor:default}
+label{display:block;font-size:13px;color:var(--ink2);margin:12px 0 4px}
+input[type=text],input[type=tel],select,textarea{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:11px 12px}
+textarea{min-height:70px;resize:vertical}
+.chk{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:14px;color:var(--ink)}
+.chk input{margin-top:3px;width:18px;height:18px;accent-color:var(--accent)}
+.chk a{color:var(--accent)}
+.sum{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:8px 0}
+.sum div{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
+.sum span{color:var(--ink2)}
+.done{text-align:center;padding:40px 8px}
+.done .tick{width:56px;height:56px;border-radius:50%;background:var(--ok);color:#fff;font-size:30px;line-height:56px;margin:0 auto 14px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.skel{color:var(--ink2);padding:24px 0;text-align:center}
+</style>
+</head>
+<body>
+<div class="test" id="test">Тестовый стенд · заявка попадёт в тестовый календарь, не в рабочий</div>
+<div class="bar"><button class="back" id="back" hidden>‹ Назад</button><h1 id="ttl"></h1></div>
+<div class="scroll" id="main"></div>
+<div class="foot" id="foot"></div>
+
+<script>
+"use strict";
+const Q = new URLSearchParams(location.search);
+const WORKER = Q.get("worker") || "https://broni-auth.alexeynovopashin.workers.dev";
+const HALL = Q.get("hall") || "edison";
+const RULES = Q.get("rules") || "";
+if (Q.get("theme") === "light" || Q.get("theme") === "dark") document.documentElement.dataset.theme = Q.get("theme");
+// ступени цены: «до скольки человек : цена за час», как в ценах сайта
+const TIERS = (Q.get("tiers") || "9:1600,15:1800,30:2000").split(",").map(x => x.split(":").map(Number))
+  .filter(t => t.length === 2 && t.every(Number.isFinite)).sort((a, b) => a[0] - b[0]);
+const HALL_NAMES = { edison: "Эдисон", sphere: "Сфера", sfera: "Сфера", vegas: "Вегас" };
+const MONTHS = ["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
+const DAYS_LONG = ["воскресенье","понедельник","вторник","среда","четверг","пятница","суббота"];
+const pad = n => String(n).padStart(2, "0");
+const $ = id => document.getElementById(id);
+
+const S = { step: "date", cfg: null, month: null, date: "", busy: {}, start: "", len: 0, guests: 0, name: "", phone: "", note: "", consent: false, sending: false, error: "" };
+
+/* Время Томска, как у студии: окно всегда показывает «сегодня» и «сейчас» по часам зала. */
+function tomsk() { const d = new Date(Date.now() + 7 * 3600000); return { date: `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`, min: d.getUTCHours() * 60 + d.getUTCMinutes() }; }
+const toMin = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+const fromMin = n => `${pad(Math.floor(n / 60))}:${pad(n % 60)}`;
+const dayOf = ds => new Date(ds + "T00:00:00Z");
+const money = n => new Intl.NumberFormat("ru-RU").format(n).replace(/ /g, " ") + " ₽";
+function longDate(ds) { const d = dayOf(ds); return `${DAYS_LONG[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()].replace(/ь$/, "я").replace(/т$/, "та").replace(/й$/, "я")}`; }
+function rate(g) { const t = TIERS.find(t => g <= t[0]) || TIERS[TIERS.length - 1]; return t[1]; }
+const price = () => Math.round(rate(S.guests || 1) * S.len / 60);
+const lenText = m => { const h = Math.floor(m / 60), r = m % 60; return (h ? `${h} ч` : "") + (r ? ` ${r} мин` : ""); };
+
+async function api(path, opt) {
+  const r = await fetch(WORKER + path, opt);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(data.error || `HTTP ${r.status}`); e.status = r.status; throw e; }
+  return data;
+}
+
+async function loadMonthBusy(first) {
+  const t = tomsk().date;
+  const from = first > t ? first : t;
+  const d = dayOf(first); const last = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0));
+  const to = `${last.getUTCFullYear()}-${pad(last.getUTCMonth()+1)}-${pad(last.getUTCDate())}`;
+  if (to < from) return;
+  const data = await api(`/public/busy?hall=${HALL}&from=${from}&to=${to}`);
+  // обновляем только диапазон месяца, чтобы не затирать уже загруженное
+  for (let ms = dayOf(from).getTime(); ms <= dayOf(to).getTime(); ms += 86400000) S.busy[new Date(ms).toISOString().slice(0, 10)] = [];
+  for (const b of data.busy) (S.busy[b.date] = S.busy[b.date] || []).push([toMin(b.start), toMin(b.end)]);
+}
+
+/* Свободно ли [s, e) в этот день */
+const isFree = (ds, s, e) => !(S.busy[ds] || []).some(([a, b]) => a < e && s < b);
+
+function render() {
+  const main = $("main"), foot = $("foot"), back = $("back"), ttl = $("ttl");
+  main.textContent = ""; foot.textContent = ""; back.hidden = S.step === "date" || S.step === "done";
+  ttl.textContent = `Зал «${HALL_NAMES[HALL] || HALL}»`;
+  if (!S.cfg) { main.innerHTML = `<p class="skel">${S.error || "Загружаем свободное время…"}</p>`; return; }
+  ({ date: viewDate, time: viewTime, contacts: viewContacts, done: viewDone })[S.step]();
+  parent !== window && parent.postMessage({ type: "bronios-widget-step", step: S.step }, "*");
+}
+
+function el(tag, props = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) { if (k === "class") e.className = v; else if (k.startsWith("on")) e[k] = v; else if (v !== false && v != null) e.setAttribute(k, v === true ? "" : v); }
+  for (const k of kids) e.append(k);
+  return e;
+}
+
+function viewDate() {
+  const main = $("main"), t = tomsk(), [y, m] = S.month;
+  const first = new Date(Date.UTC(y, m, 1)), days = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+  const lead = (first.getUTCDay() + 6) % 7;
+  const max = new Date(dayOf(t.date).getTime() + S.cfg.maxDays * 86400000).toISOString().slice(0, 10);
+  const prevOk = `${y}-${pad(m + 1)}-01` > t.date.slice(0, 8) + "01";
+  const nextOk = `${m === 11 ? y + 1 : y}-${pad((m + 1) % 12 + 1)}-01` <= max;
+  main.append(el("div", { class: "mh" },
+    el("button", { "aria-label": "Предыдущий месяц", disabled: !prevOk, onclick: () => shiftMonth(-1) }, "‹"),
+    el("b", {}, `${MONTHS[m]} ${y}`),
+    el("button", { "aria-label": "Следующий месяц", disabled: !nextOk, onclick: () => shiftMonth(1) }, "›")));
+  const cal = el("div", { class: "cal" });
+  ["пн","вт","ср","чт","пт","сб","вс"].forEach(d => cal.append(el("div", { class: "dow" }, d)));
+  for (let i = 0; i < lead; i++) cal.append(el("button", { class: "pad", disabled: true, tabindex: "-1", "aria-hidden": "true" }));
+  for (let d = 1; d <= days; d++) {
+    const ds = `${y}-${pad(m + 1)}-${pad(d)}`;
+    const off = ds < t.date || ds > max;
+    cal.append(el("button", { class: ds === t.date ? "today" : "", disabled: off, onclick: () => { S.date = ds; S.start = ""; S.len = 0; S.step = "time"; render(); } }, String(d)));
+  }
+  main.append(cal, el("p", { class: "hint", style: "margin-top:12px" }, "Выберите день. Время, занятое другими клиентами, на следующем шаге будет перечёркнуто."));
+}
+async function shiftMonth(delta) {
+  const [y, m] = S.month; const d = new Date(Date.UTC(y, m + delta, 1));
+  S.month = [d.getUTCFullYear(), d.getUTCMonth()];
+  try { await loadMonthBusy(`${S.month[0]}-${pad(S.month[1] + 1)}-01`); } catch (e) { S.error = e.message; }
+  render();
+}
+
+function viewTime() {
+  const main = $("main"), foot = $("foot"), t = tomsk(), open = toMin(S.cfg.hours.open), close = toMin(S.cfg.hours.close), step = S.cfg.stepMin;
+  $("ttl").textContent = longDate(S.date);
+  main.append(el("h2", {}, "Начало"));
+  const starts = el("div", { class: "chips" });
+  for (let s = open; s + S.cfg.minMinutes <= close; s += step) {
+    const past = S.date === t.date && s <= t.min;
+    const free = !past && isFree(S.date, s, s + S.cfg.minMinutes);
+    starts.append(el("button", { class: S.start === fromMin(s) ? "on" : "", disabled: !free, onclick: () => { S.start = fromMin(s); if (!S.len || !isFree(S.date, s, s + S.len) || s + S.len > close) S.len = 0; render(); } }, fromMin(s)));
+  }
+  main.append(starts);
+  if (S.start) {
+    const s = toMin(S.start);
+    main.append(el("h2", {}, "Сколько времени"));
+    const lens = el("div", { class: "chips" });
+    for (let l = S.cfg.minMinutes; l <= 6 * 60; l += step) {
+      const ok = s + l <= close && isFree(S.date, s, s + l);
+      lens.append(el("button", { class: S.len === l ? "on" : "", disabled: !ok, onclick: () => { S.len = l; render(); } }, lenText(l)));
+    }
+    main.append(lens, el("p", { class: "hint", style: "margin-top:10px" }, "Нужно раньше или позже — напишите администратору: онлайн-запись с " + S.cfg.hours.open + " до " + S.cfg.hours.close + "."));
+  }
+  const ready = S.start && S.len;
+  foot.append(el("div", { class: "frow" }, el("span", {}, ready ? `${S.start}–${fromMin(toMin(S.start) + S.len)} · ${lenText(S.len)}` : "Выберите начало и длительность"), el("b", {}, ready ? "от " + money(Math.round(TIERS[0][1] * S.len / 60)) : "")),
+    el("button", { class: "go", disabled: !ready, onclick: () => { S.step = "contacts"; S.error = ""; render(); } }, "Продолжить"));
+}
+
+function viewContacts() {
+  const main = $("main"), foot = $("foot");
+  $("ttl").textContent = "Ваши данные";
+  const maxG = TIERS[TIERS.length - 1][0];
+  if (!S.guests) S.guests = Math.min(2, maxG);
+  const guestSel = el("select", { id: "g", onchange: e => { S.guests = +e.target.value; renderTotal(); } });
+  for (let g = 1; g <= maxG; g++) guestSel.append(el("option", { value: g, selected: g === S.guests }, String(g)));
+  const nameI = el("input", { type: "text", id: "n", autocomplete: "name", value: S.name, oninput: e => { S.name = e.target.value; sync(); } });
+  const phoneI = el("input", { type: "tel", id: "p", autocomplete: "tel", placeholder: "+7 ___ ___-__-__", value: S.phone, oninput: e => { S.phone = e.target.value; sync(); } });
+  const noteI = el("textarea", { id: "c", placeholder: "Например: съёмка с собакой, нужен фон", oninput: e => { S.note = e.target.value; } });
+  noteI.value = S.note;
+  const hp = el("input", { type: "text", id: "website", class: "hp", tabindex: "-1", autocomplete: "off", "aria-hidden": "true" });
+  const consent = el("input", { type: "checkbox", id: "k", checked: S.consent, onchange: e => { S.consent = e.target.checked; sync(); } });
+  const rulesLink = RULES ? el("a", { href: RULES, target: "_blank", rel: "noopener" }, "правилами студии") : "правилами студии";
+  main.append(
+    el("div", { class: "sum" }, el("div", {}, el("span", {}, "Зал"), HALL_NAMES[HALL] || HALL), el("div", {}, el("span", {}, "Когда"), `${longDate(S.date)}, ${S.start}–${fromMin(toMin(S.start) + S.len)}`)),
+    el("label", { for: "n" }, "Имя"), nameI,
+    el("label", { for: "p" }, "Телефон"), phoneI,
+    el("label", { for: "g" }, "Сколько человек"), guestSel,
+    el("label", { for: "c" }, "Пожелание (необязательно)"), noteI, hp,
+    el("label", { class: "chk" }, consent, el("span", {}, "Я ознакомился с ", rulesLink, " и согласен на обработку персональных данных для записи")),
+    el("p", { class: "err", id: "e", role: "alert" }, S.error));
+  const total = el("b", { id: "tot" }), btn = el("button", { class: "go", id: "send", onclick: send }, "Отправить заявку");
+  foot.append(el("div", { class: "frow" }, el("span", {}, "Предварительно"), total), btn, el("p", { class: "hint" }, "Время закрепится за вами после заявки. Администратор свяжется и подтвердит бронь после предоплаты."));
+  function renderTotal() { total.textContent = money(price()); }
+  function sync() { btn.disabled = S.sending || S.name.trim().length < 2 || S.phone.replace(/\D/g, "").length < 10 || !S.consent; }
+  renderTotal(); sync();
+}
+
+async function send() {
+  S.sending = true; S.error = ""; $("send").disabled = true; $("send").textContent = "Отправляем…";
+  try {
+    await api("/public/request", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
+      hall: HALL, date: S.date, start: S.start, end: fromMin(toMin(S.start) + S.len), guests: S.guests,
+      name: S.name, phone: S.phone, note: S.note, consent: S.consent, price: price(), website: $("website").value }) });
+    S.step = "done";
+  } catch (e) {
+    S.error = e.message === "busy" ? "Пока вы заполняли форму, это время заняли. Выберите другое." : e.message;
+    if (e.message === "busy") { S.step = "time"; S.len = 0; S.start = ""; try { await loadMonthBusy(S.date.slice(0, 8) + "01"); } catch {} }
+  }
+  S.sending = false; render();
+  if (S.step === "time" && S.error) $("main").prepend(el("p", { class: "err", role: "alert" }, S.error));
+}
+
+function viewDone() {
+  $("ttl").textContent = "Заявка отправлена";
+  $("main").append(el("div", { class: "done" }, el("div", { class: "tick" }, "✓"),
+    el("h2", {}, `${longDate(S.date)}, ${S.start}–${fromMin(toMin(S.start) + S.len)}`),
+    el("p", { class: "hint" }, "Это тест: заявка записана в тестовый календарь зала и видна в приложении администратора. Время за вами закреплено, пока администратор не изменит статус.")));
+  $("foot").append(el("button", { class: "go", onclick: () => { Object.assign(S, { step: "date", date: "", start: "", len: 0, note: "", consent: false }); init(); } }, "Новая заявка"));
+}
+
+$("back").onclick = () => { S.error = ""; S.step = S.step === "contacts" ? "time" : "date"; render(); };
+
+async function init() {
+  render();
+  try {
+    S.cfg = S.cfg || await api("/public/config");
+    const t = tomsk().date; S.month = [+t.slice(0, 4), +t.slice(5, 7) - 1];
+    await loadMonthBusy(t.slice(0, 8) + "01");
+    S.error = "";
+  } catch (e) {
+    S.cfg = S.cfg || null;
+    S.error = e.status === 404 ? "Онлайн-запись сейчас выключена." : "Не удалось загрузить свободное время. Обновите страницу или напишите администратору.";
+  }
+  render();
+}
+init();
+</script>
+</body>
+</html>
