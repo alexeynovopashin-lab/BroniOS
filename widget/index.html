@@ -30,6 +30,8 @@ button{cursor:pointer}
 .go{border:0;background:var(--accent);color:var(--on);border-radius:var(--r);padding:13px;font-weight:700;font-size:16px;width:100%}
 .go[disabled]{opacity:.4;cursor:default}
 .hint{font-size:13px;color:var(--ink2)}
+.lite{margin-top:14px;padding:10px 12px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);font-size:14px}
+.lite small{display:block;margin-top:2px;color:var(--ink2);font-size:12px}
 .err{color:var(--bad);font-size:13.5px}
 h2{font-size:15px;font-weight:700;margin:14px 0 8px}
 .mh{display:flex;align-items:center;justify-content:space-between;margin:6px 0 8px}
@@ -67,6 +69,7 @@ textarea{min-height:70px;resize:vertical}
 <div class="scroll" id="main"></div>
 <div class="foot" id="foot"></div>
 
+<script src="window_light.js"></script>
 <script>
 "use strict";
 const Q = new URLSearchParams(location.search);
@@ -78,6 +81,14 @@ if (Q.get("theme") === "light" || Q.get("theme") === "dark") document.documentEl
 const TIERS = (Q.get("tiers") || "9:1600,15:1800,30:2000").split(",").map(x => x.split(":").map(Number))
   .filter(t => t.length === 2 && t.every(Number.isFinite)).sort((a, b) => a[0] - b[0]);
 const HALL_NAMES = { edison: "Эдисон", sphere: "Сфера", sfera: "Сфера", vegas: "Вегас" };
+/* Свет в окне зала (правило Light Plan, файл window_light.js — копия без правок).
+   Пока ядро не отдаёт данные зала, они здесь: куда смотрят окна, в градусах от севера по часовой.
+   ЮЗ = 225°, СВ = 45° — середина стороны света, не замер (вывод, не слова Алексея).
+   Координаты — центр Томска, не адрес студии; на высоту солнца разница в пару километров не влияет.
+   Меняется адресом: ?win=225 | ?win=none (окон нет) и ?ll=56.4846,84.9476. */
+const WINDOWS = { edison: 225, sphere: 225, sfera: 225, vegas: 45 };
+const STUDIO_LL = (Q.get("ll") || "56.4846,84.9476").split(",").map(Number);
+const WIN = Q.get("win") !== null ? (Q.get("win") === "none" ? "none" : Number(Q.get("win"))) : WINDOWS[HALL];
 const MONTHS = ["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
 const DAYS_LONG = ["воскресенье","понедельник","вторник","среда","четверг","пятница","суббота"];
 const pad = n => String(n).padStart(2, "0");
@@ -162,6 +173,21 @@ async function shiftMonth(delta) {
   render();
 }
 
+/* Свет в окне на момент съёмки; пустая строка, если правило не загрузилось или ответ «нет окон / нет данных» */
+function lightAt(ds, min) {
+  const WL = window.WindowLight;
+  if (!WL || WIN === "none" || WIN === undefined || !Number.isFinite(WIN) || STUDIO_LL.length !== 2 || !STUDIO_LL.every(Number.isFinite)) return "";
+  const r = WL.at({ instant: `${ds}T${fromMin(min)}:00+07:00`, lat: STUDIO_LL[0], lon: STUDIO_LL[1], timezone: "Asia/Tomsk", hasWindows: true, windowsAzimuth: WIN });
+  return r.kind === "none" || r.kind === "unknown" ? "" : WL.LABELS_RU[r.kind];
+}
+function lightBlock() {
+  const a = lightAt(S.date, toMin(S.start));
+  if (!a) return null;
+  const e = S.len ? lightAt(S.date, toMin(S.start) + S.len) : "";
+  const text = e && e !== a ? `Свет в окне: ${a} в ${S.start}, ${e} к ${fromMin(toMin(S.start) + S.len)}` : `Свет в окне: ${a}`;
+  return el("div", { class: "lite" }, text, el("small", {}, window.WindowLight.NOTE.replace(/^./, c => c.toUpperCase())));
+}
+
 function viewTime() {
   const main = $("main"), foot = $("foot"), t = tomsk(), open = toMin(S.cfg.hours.open), close = toMin(S.cfg.hours.close), step = S.cfg.stepMin;
   $("ttl").textContent = longDate(S.date);
@@ -181,7 +207,9 @@ function viewTime() {
       const ok = s + l <= close && isFree(S.date, s, s + l);
       lens.append(el("button", { class: S.len === l ? "on" : "", disabled: !ok, onclick: () => { S.len = l; render(); } }, lenText(l)));
     }
-    main.append(lens, el("p", { class: "hint", style: "margin-top:10px" }, "Нужно раньше или позже — напишите администратору: онлайн-запись с " + S.cfg.hours.open + " до " + S.cfg.hours.close + "."));
+    main.append(lens);
+    const lite = lightBlock(); if (lite) main.append(lite);
+    main.append(el("p", { class: "hint", style: "margin-top:10px" }, "Нужно раньше или позже — напишите администратору: онлайн-запись с " + S.cfg.hours.open + " до " + S.cfg.hours.close + "."));
   }
   const ready = S.start && S.len;
   foot.append(el("div", { class: "frow" }, el("span", {}, ready ? `${S.start}–${fromMin(toMin(S.start) + S.len)} · ${lenText(S.len)}` : "Выберите начало и длительность"), el("b", {}, ready ? "от " + money(Math.round(TIERS[0][1] * S.len / 60)) : "")),
