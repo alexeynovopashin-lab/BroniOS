@@ -230,8 +230,11 @@
    "connectedToBroniOS": false,
    "halls": [],
    "src": [
-    "2gis"
-   ]
+    "2gis",
+    "own (слова Алексея 04.11): три зала"
+   ],
+   "hallsCount": 3,
+   "note": "три зала (Алексей 04.11), названия не выяснены"
   },
   {
    "id": "krasivaya-zhizn",
