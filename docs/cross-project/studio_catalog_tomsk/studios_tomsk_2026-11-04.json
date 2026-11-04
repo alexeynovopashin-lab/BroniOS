@@ -1,0 +1,132 @@
+{
+  "_about": "Черновик каталога фотостудий Томска для выбора студии в Light Plan. Сбор 2026-11-04, чат BroniOS. Формат полей зала совпадает с CONTRACTS/studio_catalog.md хаба и именами ядра (hasWindows, windowsAzimuth, timezone; Event_OS BRIDGE_BRONIOS §9.3). Каждое поле с пометкой источника: src. Всё, кроме Томсона, взято из каталогов и сайтов третьих лиц и НЕ ПРОВЕРЕНО звонком или визитом. Личных данных нет (телефоны, имена людей не собирались). Законность использования данных каталогов как источника: не проверено.",
+  "collected": "2026-11-04",
+  "timezone": "Asia/Tomsk",
+  "sources": {
+    "own": "tomson-site:content/halls.json; platform_hub:CONTRACTS/studio_catalog.md (азимуты окон названы Алексеем 07.10)",
+    "studiogo": "https://studiogo.ru/tomsk/studios и карточки https://studiogo.ru/studios/<id> (каталог третьей стороны; robots.txt страницы не запрещал; условия использования данных не проверены)",
+    "gorko": "https://tomsk.gorko.ru/фотостудии/ (только список названий с первой страницы; robots.txt запрещает вторую страницу и прочий обход, дальше не ходили)",
+    "studio_site": "https://studioflat101.com/ (официальный сайт студии)",
+    "orgsbiz": "https://riverside-photostudio.orgs.biz/ (каталог организаций, не сайт студии)"
+  },
+  "studios": [
+    {
+      "id": "tomson",
+      "name": "Томсон",
+      "address": "Томск, ул. Красноармейская, 101а",
+      "connectedToBroniOS": true,
+      "src": {"name": "own", "address": "studiogo:3827 (адрес; в tomson-site:content/site.json не сверялся)", "connectedToBroniOS": "own"},
+      "halls": [
+        {"key": "edison", "number": "01", "name": "Эдисон", "area": 82, "ceilingM": 4, "hasWindows": true, "windowsAzimuth": 225, "windowsSide": "ЮЗ", "src": "own", "note": "азимут приближённый, из слов Алексея 07.10 «ЮЗ»; точного замера компасом нет"},
+        {"key": "sfera", "number": "02", "name": "Сфера", "area": 60, "ceilingM": 4, "hasWindows": true, "windowsAzimuth": 225, "windowsSide": "ЮЗ", "src": "own", "note": "то же"},
+        {"key": "vegas", "number": "03", "name": "Вегас", "area": 40, "ceilingM": 4, "hasWindows": true, "windowsAzimuth": 45, "windowsSide": "СВ", "src": "own", "note": "то же; окно можно закрыть"}
+      ]
+    },
+    {
+      "id": "studio-flat-101",
+      "name": "Studio flat 101",
+      "address": "Томск, ул. Красноармейская, 101А, 4 этаж",
+      "connectedToBroniOS": false,
+      "src": {"all": "studio_site"},
+      "halls": [
+        {"name": "Зал 45 (циклорама)", "area": null, "hasWindows": true, "windowsAzimuth": null, "note": "много дневного света; площадь не указана"},
+        {"name": "Зал 411", "area": null, "hasWindows": null, "windowsAzimuth": null},
+        {"name": "Зал 58 (циклорама)", "area": null, "hasWindows": true, "windowsAzimuth": null, "note": "много дневного света"},
+        {"name": "Зал 60", "area": null, "hasWindows": null, "windowsAzimuth": null},
+        {"name": "Зал Wabi", "area": null, "hasWindows": true, "windowsAzimuth": null, "note": "светлый зал"}
+      ],
+      "gaps": "площади по залам нет; общая площадь на сайте противоречит сама себе (мета «более 350 м²», текст «более 430 м²»); стороны света нет"
+    },
+    {
+      "id": "light-lab-studio",
+      "name": "Light Lab Studio",
+      "address": "Томск, пр. Кирова, 5, стр. 16",
+      "connectedToBroniOS": false,
+      "src": {"all": "studiogo:14229"},
+      "halls": [
+        {"name": "Зал Кирова", "area": 54, "ceilingM": 3.5, "hasWindows": true, "windowsAzimuth": null, "note": "прямое солнце в первой половине дня (вывод по описанию: окна, вероятно, на восток/юго-восток; не проверено)"},
+        {"name": "Зал 120", "area": 120, "ceilingM": 4.5, "hasWindows": true, "windowsAzimuth": null, "note": "панорамные окна по кругу"},
+        {"name": "Зал 50", "area": 50, "ceilingM": 4.5, "hasWindows": true, "windowsAzimuth": null, "note": "панорамные окна на «солнечную сторону»; градусов нет"}
+      ]
+    },
+    {
+      "id": "why-not",
+      "name": "ВАЙ НОТ",
+      "address": "Томск, пр. Кирова, 5с13",
+      "connectedToBroniOS": false,
+      "src": {"all": "studiogo:14672"},
+      "halls": [
+        {"name": "Why not", "area": 90, "ceilingM": 5, "hasWindows": true, "windowsAzimuth": null, "note": "большие окна, дневной свет можно закрыть"}
+      ],
+      "gaps": "в карточке студия 80 м², зал 90 м²: противоречие"
+    },
+    {
+      "id": "schastlivye-momenty",
+      "name": "Счастливые моменты",
+      "address": "Томск, ул. Красноармейская, 101а, 4 этаж, офис 412",
+      "connectedToBroniOS": false,
+      "src": {"all": "studiogo:21749"},
+      "halls": [
+        {"name": "Основной", "area": 85, "ceilingM": 4, "hasWindows": null, "windowsAzimuth": null}
+      ],
+      "gaps": "в карточке студия 80 м², зал 85 м²"
+    },
+    {
+      "id": "f240",
+      "name": "F240",
+      "address": "Томск, ул. Фрунзе, 240а, с. 14",
+      "connectedToBroniOS": false,
+      "src": {"all": "studiogo:7781"},
+      "halls": [
+        {"name": "Зал с циклорамой", "area": 60, "ceilingM": 3, "hasWindows": true, "windowsAzimuth": null, "note": "большие окна, затемнение возможно; сторону света карточка не называет"}
+      ]
+    },
+    {
+      "id": "oneroom",
+      "name": "Oneroom",
+      "address": "Томск, ул. Красноармейская, 101а, 4 этаж, офис 413",
+      "connectedToBroniOS": false,
+      "src": {"all": "studiogo:5244"},
+      "halls": [
+        {"name": "Лайт", "area": 45, "ceilingM": 5, "hasWindows": true, "windowsAzimuth": null, "note": "очень много естественного света"}
+      ]
+    },
+    {
+      "id": "mgnoveniya",
+      "name": "Мгновения",
+      "address": "Томск, ул. Красноармейская, 101а",
+      "connectedToBroniOS": false,
+      "src": {"name": "studiogo (список)", "address": "studiogo (список)"},
+      "halls": [],
+      "gaps": "по списку 2 зала, названий и площадей нет: карточка не открылась"
+    },
+    {
+      "id": "maska",
+      "name": "Маска",
+      "address": "Томск, ул. Говорова, 19в, стр. 1, 3 этаж",
+      "connectedToBroniOS": false,
+      "src": {"all": "studiogo:11885"},
+      "halls": [
+        {"name": "Классика", "area": 39, "ceilingM": 3, "hasWindows": null, "windowsAzimuth": null},
+        {"name": "Белый", "area": 30, "ceilingM": 3, "hasWindows": null, "windowsAzimuth": null}
+      ],
+      "gaps": "в описании студия 126 м², в характеристиках 69 м² (сумма залов = 69)"
+    },
+    {
+      "id": "riverside",
+      "name": "Riverside",
+      "address": "Томск, ул. Красноармейская, 101А, 4 этаж, офис 420/2",
+      "connectedToBroniOS": false,
+      "src": {"all": "orgsbiz"},
+      "halls": [
+        {"name": "(один зал, четыре локации)", "area": 40, "hasWindows": true, "windowsAzimuth": null, "note": "большие окна, естественный и импульсный свет; цена с каталога 1000 ₽/час (цены в каталог не кладём без проверки)"}
+      ],
+      "gaps": "в списке Gorko «Riverside» стоит дважды: возможно два разных зала или дубль; не выяснено"
+    }
+  ],
+  "namesOnlyNoData": {
+    "src": "gorko (список названий)",
+    "names": ["Beautiful life", "Романс", "Взгляд", "Акварель", "Фотостудия Счастье", "PROSTO Studio", "Зефир", "Lightroom", "ArtVision", "Colibri", "Eastwood", "Плед", "Zont", "Lumiere", "Сторис"],
+    "note": "адресов, залов и площадей нет; часть может совпадать с студиями выше под другим названием (например Lightroom и Light Lab Studio: не проверено). Gorko пишет «21 студия», в списке видны 20, 21-я на закрытой для обхода второй странице."
+  }
+}
