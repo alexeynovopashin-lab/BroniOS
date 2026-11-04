@@ -1,0 +1,147 @@
+{
+ "city": "Уфа",
+ "collected": "2026-11-04",
+ "sources": {
+  "studiogo": "https://studiogo.ru/ufa/studios",
+  "2gis": null
+ },
+ "note": "черновик, не проверено",
+ "studios": [
+  {
+   "name": "Флоренция",
+   "address": "Уфа, Проспект Салавата Юлаева 59 (вход с обратной стороны здания), 3 этаж, офис 334",
+   "halls": [],
+   "src": [
+    "studiogo:14007"
+   ]
+  },
+  {
+   "name": "M-APT",
+   "address": "",
+   "halls": [
+    {
+     "name": "Белый"
+    },
+    {
+     "name": "Loft"
+    }
+   ],
+   "src": [
+    "studiogo:532"
+   ],
+   "note": "в StudioGo вместо адреса указан только город"
+  },
+  {
+   "name": "Minimal Space",
+   "address": "Уфа, Кирова 128/1 литА",
+   "halls": [
+    {
+     "name": "Зал Minimal"
+    },
+    {
+     "name": "Зал Soft"
+    }
+   ],
+   "src": [
+    "studiogo:11798"
+   ]
+  },
+  {
+   "name": "FOCUS",
+   "address": "Уфа, 50 лет СССР 39\\11",
+   "halls": [
+    {
+     "name": "Северный"
+    },
+    {
+     "name": "Портретный"
+    }
+   ],
+   "src": [
+    "studiogo:6144"
+   ]
+  },
+  {
+   "name": "Фотостудия Шелест",
+   "address": "Уфа, Бульвар Славы д.6",
+   "halls": [],
+   "src": [
+    "studiogo:6970"
+   ]
+  },
+  {
+   "name": "Ballance Studio",
+   "address": "Уфа, Верхнеторговая 4",
+   "halls": [],
+   "src": [
+    "studiogo:3479"
+   ]
+  },
+  {
+   "name": "Фабрика",
+   "address": "Уфа, Карима Хакимова 7",
+   "halls": [
+    {
+     "name": "ЦEХ 2"
+    },
+    {
+     "name": "Съёмка в Арт-пространстве УЛЕЙ"
+    },
+    {
+     "name": "ЦЕХ 1"
+    }
+   ],
+   "src": [
+    "studiogo:1334"
+   ]
+  },
+  {
+   "name": "Интерьерная фотостудия",
+   "address": "Уфа, Ул. Софьи Перовской 52",
+   "halls": [],
+   "src": [
+    "studiogo:6653"
+   ]
+  },
+  {
+   "name": "GALLERY 21",
+   "address": "Уфа, Бакалинская 21/1",
+   "halls": [
+    {
+     "name": "BATHROOM"
+    },
+    {
+     "name": "BEDROOM"
+    }
+   ],
+   "src": [
+    "studiogo:702"
+   ]
+  },
+  {
+   "name": "Атмосфера",
+   "address": "Уфа, ул. Ростовская 18К, офис 308А, офис 308",
+   "halls": [],
+   "src": [
+    "studiogo:309"
+   ]
+  },
+  {
+   "name": "Photostudio_oliva",
+   "address": "Уфа, Проспект салавата юлаева 59",
+   "halls": [
+    {
+     "name": "Олива"
+    },
+    {
+     "name": "Поток"
+    }
+   ],
+   "src": [
+    "studiogo:11912"
+   ],
+   "note": "возможно, то же здание, что studiogo:14007 (Салавата Юлаева 59), офис неизвестен"
+  }
+ ],
+ "closed": []
+}
