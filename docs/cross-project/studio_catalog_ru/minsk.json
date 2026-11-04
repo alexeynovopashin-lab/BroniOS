@@ -1,0 +1,239 @@
+{
+ "city": "Минск",
+ "collected": "2026-11-04",
+ "sources": {
+  "studiogo": "https://studiogo.ru/minsk/studios",
+  "2gis": null
+ },
+ "note": "черновик, не проверено",
+ "studios": [
+  {
+   "name": "Diva studio",
+   "address": "Минск, ул. Октябрьская, 16/4",
+   "halls": [
+    {
+     "name": "Plaza"
+    },
+    {
+     "name": "Fashion"
+    }
+   ],
+   "src": [
+    "studiogo:8307"
+   ]
+  },
+  {
+   "name": "VOZDUH - фотостудия - студия мероприятий",
+   "address": "Минск, Куйбышева 22",
+   "halls": [
+    {
+     "name": "Зал Home"
+    },
+    {
+     "name": "Зал с фонами"
+    },
+    {
+     "name": "Зал La France"
+    }
+   ],
+   "src": [
+    "studiogo:635"
+   ],
+   "note": "тот же дом (Куйбышева 22), что studiogo:3808, studiogo:3788, studiogo:888; офис неизвестен"
+  },
+  {
+   "name": "MARK.PHOTOSTUDIO",
+   "address": "Минск, ул. Старовиленская 100. Здание Минского экспериментально-фурнитурного завода",
+   "halls": [
+    {
+     "name": "PRO MAX"
+    },
+    {
+     "name": "PRO"
+    },
+    {
+     "name": "LITE"
+    }
+   ],
+   "src": [
+    "studiogo:3495"
+   ]
+  },
+  {
+   "name": "Raw studio",
+   "address": "Минск, ул. Свердлова, 11 \"CENTROPOL\" 4 этаж",
+   "halls": [
+    {
+     "name": "Зал 80"
+    },
+    {
+     "name": "Зал GREY"
+    },
+    {
+     "name": "Терраса"
+    }
+   ],
+   "src": [
+    "studiogo:13800"
+   ]
+  },
+  {
+   "name": "Терраса Минск Мир",
+   "address": "Минск, Быховская 10",
+   "halls": [],
+   "src": [
+    "studiogo:20365"
+   ]
+  },
+  {
+   "name": "Photostudio Indoor",
+   "address": "Минск, Я.Коласа 1-438",
+   "halls": [
+    {
+     "name": "Я.Коласа 1-438"
+    },
+    {
+     "name": "зал 1 - Красноармейская 21/1, 3 этаж"
+    },
+    {
+     "name": "зал 2 - Красноармейская 21\\1"
+    },
+    {
+     "name": "Новый зал 3 - Красноармейская 21/1"
+    }
+   ],
+   "src": [
+    "studiogo:16627"
+   ],
+   "note": "в названиях залов указаны два адреса: Я.Коласа 1-438 и Красноармейская 21/1"
+  },
+  {
+   "name": "MUZA",
+   "address": "Минск, ул.Куйбышева 22, 3 этаж, направо",
+   "halls": [],
+   "src": [
+    "studiogo:3808"
+   ],
+   "note": "тот же дом (Куйбышева 22), что studiogo:635, studiogo:3788, studiogo:888; офис неизвестен"
+  },
+  {
+   "name": "Фотостудия Мимика",
+   "address": "Минск, Жилуновича, 15 - 502",
+   "halls": [
+    {
+     "name": "Монохром"
+    },
+    {
+     "name": "Бохо"
+    }
+   ],
+   "src": [
+    "studiogo:4020"
+   ]
+  },
+  {
+   "name": "Forest Studio Minsk",
+   "address": "Минск, Маяковского 115 3 этаж",
+   "halls": [
+    {
+     "name": "Place"
+    },
+    {
+     "name": "Mone"
+    },
+    {
+     "name": "Scandi"
+    }
+   ],
+   "src": [
+    "studiogo:4367"
+   ]
+  },
+  {
+   "name": "ArtLoft",
+   "address": "Минск, пр-т Партизанский 2/4 (2 этаж), пом. 201",
+   "halls": [
+    {
+     "name": "Room 201"
+    },
+    {
+     "name": "Room 202"
+    }
+   ],
+   "src": [
+    "studiogo:4736"
+   ]
+  },
+  {
+   "name": "Mora",
+   "address": "Минск, Куйбышева 22",
+   "halls": [],
+   "src": [
+    "studiogo:3788"
+   ],
+   "note": "тот же дом (Куйбышева 22), что studiogo:635, studiogo:3808, studiogo:888; офис неизвестен"
+  },
+  {
+   "name": "MAI",
+   "address": "Минск, ул. Академика Купревича д.18",
+   "halls": [
+    {
+     "name": "Зал №1 (Циклорама)"
+    },
+    {
+     "name": "Зал №2 (Металл)"
+    },
+    {
+     "name": "Зал №3 (Интерьерный)"
+    }
+   ],
+   "src": [
+    "studiogo:10873"
+   ]
+  },
+  {
+   "name": "cult413",
+   "address": "Минск, Пр-т Партизанский 6Д",
+   "halls": [],
+   "src": [
+    "studiogo:17193"
+   ]
+  },
+  {
+   "name": "2 КАДРА",
+   "address": "Минск, Фабрициуса 7а",
+   "halls": [],
+   "src": [
+    "studiogo:1012"
+   ]
+  },
+  {
+   "name": "S2 studio",
+   "address": "Минск, ул. Куйбышева 22",
+   "halls": [],
+   "src": [
+    "studiogo:888"
+   ],
+   "note": "тот же дом (Куйбышева 22), что studiogo:635, studiogo:3808, studiogo:3788; офис неизвестен"
+  },
+  {
+   "name": "Moloko",
+   "address": "Минск, улица Толбухина 4",
+   "halls": [
+    {
+     "name": "Кристалл"
+    },
+    {
+     "name": "Графит"
+    },
+    {
+     "name": "Милена"
+    }
+   ],
+   "src": [
+    "studiogo:6471"
+   ]
+  }
+ ],
+ "closed": []
+}

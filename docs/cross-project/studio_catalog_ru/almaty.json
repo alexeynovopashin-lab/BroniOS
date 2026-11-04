@@ -1,0 +1,310 @@
+{
+ "city": "Алматы",
+ "collected": "2026-11-04",
+ "sources": {
+  "studiogo": "https://studiogo.ru/almaty/studios",
+  "2gis": null
+ },
+ "note": "черновик, не проверено",
+ "studios": [
+  {
+   "name": "2StulaDom",
+   "address": "Алматы, Радостовца 72/1",
+   "halls": [
+    {
+     "name": "Кухня"
+    },
+    {
+     "name": "Dark (Дарк)"
+    },
+    {
+     "name": "Валенсия"
+    },
+    {
+     "name": "Moon (Луна)"
+    },
+    {
+     "name": "Класс"
+    },
+    {
+     "name": "Лайтрум"
+    },
+    {
+     "name": "Да Винчи"
+    },
+    {
+     "name": "WOOD (Вуд)"
+    },
+    {
+     "name": "Бруклин"
+    },
+    {
+     "name": "Urban (Урбан)"
+    }
+   ],
+   "src": [
+    "studiogo:8646"
+   ]
+  },
+  {
+   "name": "Prostranstvo",
+   "address": "Алматы, Тулебаева 38/61",
+   "halls": [
+    {
+     "name": "Terra"
+    },
+    {
+     "name": "Mokko"
+    },
+    {
+     "name": "Qaz Content"
+    },
+    {
+     "name": "Quatro"
+    },
+    {
+     "name": "Малая циклорама"
+    },
+    {
+     "name": "Aura"
+    },
+    {
+     "name": "Квартира"
+    },
+    {
+     "name": "Chronos"
+    },
+    {
+     "name": "Blanche"
+    }
+   ],
+   "src": [
+    "studiogo:11054"
+   ],
+   "note": "филиал (то же название на другом адресе: studiogo:10906)"
+  },
+  {
+   "name": "2StulaStudio",
+   "address": "Алматы, улица Макатаева дом 127/3, угол улицы Байтурсынова; этаж 3 офис 66",
+   "halls": [
+    {
+     "name": "Сказочный"
+    },
+    {
+     "name": "Shimi"
+    },
+    {
+     "name": "Будуар"
+    },
+    {
+     "name": "Классический"
+    },
+    {
+     "name": "Нордик"
+    },
+    {
+     "name": "Fashion"
+    },
+    {
+     "name": "Фьюжн"
+    }
+   ],
+   "src": [
+    "studiogo:7449"
+   ]
+  },
+  {
+   "name": "Campot House",
+   "address": "Алматы, Иванилова 63з",
+   "halls": [
+    {
+     "name": "Бали"
+    },
+    {
+     "name": "Минимализм"
+    },
+    {
+     "name": "Ванная комната"
+    },
+    {
+     "name": "Экспертный кабинет"
+    },
+    {
+     "name": "Классический зал"
+    },
+    {
+     "name": "Лестница"
+    },
+    {
+     "name": "Кофейня"
+    },
+    {
+     "name": "Летняя терраса с бассейном"
+    },
+    {
+     "name": "Кухня"
+    },
+    {
+     "name": "Циклорама"
+    }
+   ],
+   "src": [
+    "studiogo:17166"
+   ]
+  },
+  {
+   "name": "360 Photostudio",
+   "address": "Алматы, Торайгырова 19а",
+   "halls": [],
+   "src": [
+    "studiogo:4211"
+   ],
+   "note": "StudioGo показывает 0 залов"
+  },
+  {
+   "name": "Stic Room Photo Studio",
+   "address": "Алматы, Проспект Жибек Жолы 64",
+   "halls": [],
+   "src": [
+    "studiogo:6552"
+   ]
+  },
+  {
+   "name": "Masterskaya Space",
+   "address": "Алматы, пр. Жибек Жолы, 60, 22 офис, 1 и 3 этаж",
+   "halls": [
+    {
+     "name": "CYCLORAMA"
+    },
+    {
+     "name": "WHITE"
+    },
+    {
+     "name": "INTERIOR зал"
+    }
+   ],
+   "src": [
+    "studiogo:7287"
+   ]
+  },
+  {
+   "name": "CoCo",
+   "address": "Алматы, Гоголя 20",
+   "halls": [],
+   "src": [
+    "studiogo:6855"
+   ]
+  },
+  {
+   "name": "@v.efire",
+   "address": "Алматы, Радлова 65",
+   "halls": [],
+   "src": [
+    "studiogo:3455"
+   ]
+  },
+  {
+   "name": "ISO STUDIO",
+   "address": "Алматы, улица Маметовой 67",
+   "halls": [
+    {
+     "name": "MIX"
+    },
+    {
+     "name": "DUNE"
+    }
+   ],
+   "src": [
+    "studiogo:17286"
+   ]
+  },
+  {
+   "name": "Prostranstvo",
+   "address": "Алматы, Бегалина 11",
+   "halls": [
+    {
+     "name": "Аура"
+    },
+    {
+     "name": "Aurora"
+    },
+    {
+     "name": "Mobilography"
+    },
+    {
+     "name": "Циклорама"
+    },
+    {
+     "name": "Гардероб"
+    },
+    {
+     "name": "Terra"
+    },
+    {
+     "name": "Chronos"
+    }
+   ],
+   "src": [
+    "studiogo:10906"
+   ],
+   "note": "филиал (то же название на другом адресе: studiogo:11054)"
+  },
+  {
+   "name": "etage15",
+   "address": "Алматы, Кунаева 15/1 блок 2, этаж 15",
+   "halls": [
+    {
+     "name": "Аренда студии (4 локации)"
+    },
+    {
+     "name": "Аренда камеры + фотостудия"
+    }
+   ],
+   "src": [
+    "studiogo:13065"
+   ]
+  },
+  {
+   "name": "Фотостудия Tulpan Berlin",
+   "address": "Алматы, Пушкина 25",
+   "halls": [],
+   "src": [
+    "studiogo:5601"
+   ]
+  },
+  {
+   "name": "Reflex Studio",
+   "address": "Алматы, Проспект Гагарина 93а, этаж 4, кабинет 441",
+   "halls": [
+    {
+     "name": "Этно"
+    },
+    {
+     "name": "Лофт"
+    },
+    {
+     "name": "Циклорама"
+    }
+   ],
+   "src": [
+    "studiogo:19016"
+   ]
+  },
+  {
+   "name": "Silvers Production",
+   "address": "Алматы, Тулебаева 38",
+   "halls": [
+    {
+     "name": "Los Angels"
+    },
+    {
+     "name": "Hollywood"
+    }
+   ],
+   "src": [
+    "studiogo:14946"
+   ]
+  }
+ ],
+ "closed": []
+}
