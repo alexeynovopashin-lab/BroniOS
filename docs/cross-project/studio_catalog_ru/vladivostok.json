@@ -1,0 +1,344 @@
+{
+ "city": "Владивосток",
+ "collected": "2026-11-04",
+ "sources": {
+  "studiogo": "https://studiogo.ru/vladivostok/studios",
+  "2gis": null
+ },
+ "note": "черновик, не проверено",
+ "studios": [
+  {
+   "name": "Sola studio",
+   "address": "Владивосток, ул. Бородинская 20",
+   "halls": [
+    {
+     "name": "Sola"
+    },
+    {
+     "name": "Коворкинг, лекционный зал"
+    }
+   ],
+   "src": [
+    "studiogo:20901"
+   ],
+   "note": "тот же дом (Бородинская 20), что studiogo:19011; офис неизвестен"
+  },
+  {
+   "name": "Don't Sleep Studio",
+   "address": "Владивосток, ул. Русская д. 65, корп. 10",
+   "halls": [
+    {
+     "name": "Циклорама"
+    },
+    {
+     "name": "Зал Sol"
+    }
+   ],
+   "src": [
+    "studiogo:2448"
+   ],
+   "note": "тот же дом (Русская 65, корп. 10), что studiogo:493, studiogo:3672, studiogo:8943, studiogo:633, studiogo:18791, studiogo:6399, studiogo:945; офис неизвестен"
+  },
+  {
+   "name": "Фотостудия Грани",
+   "address": "Владивосток, ул. Комсомольская 25 б, пентхаус 150",
+   "halls": [
+    {
+     "name": "Зал GRANI"
+    },
+    {
+     "name": "Зал HOME (ванна+ гостиная)"
+    },
+    {
+     "name": "Зал ATLANT"
+    }
+   ],
+   "src": [
+    "studiogo:14152"
+   ]
+  },
+  {
+   "name": "NoName Studios",
+   "address": "Владивосток, ул. Русская 65, корп.10, 5 этаж",
+   "halls": [
+    {
+     "name": "Peter"
+    },
+    {
+     "name": "Helmut"
+    },
+    {
+     "name": "Marie"
+    },
+    {
+     "name": "Patrick"
+    },
+    {
+     "name": "Annie"
+    }
+   ],
+   "src": [
+    "studiogo:493"
+   ],
+   "note": "тот же дом (Русская 65, корп. 10), что studiogo:2448, studiogo:3672, studiogo:8943, studiogo:633, studiogo:18791, studiogo:6399, studiogo:945; офис неизвестен; этаж 5, как у studiogo:633"
+  },
+  {
+   "name": "Urban studio",
+   "address": "Владивосток, ул. Русская 65, кор.10",
+   "halls": [
+    {
+     "name": "СОФТ"
+    },
+    {
+     "name": "АМСТЕР"
+    },
+    {
+     "name": "СКАНДИ"
+    }
+   ],
+   "src": [
+    "studiogo:3672"
+   ],
+   "note": "тот же дом (Русская 65, корп. 10), что studiogo:2448, studiogo:493, studiogo:8943, studiogo:633, studiogo:18791, studiogo:6399, studiogo:945; офис неизвестен"
+  },
+  {
+   "name": "«Воспоминания» Студия для мероприятий",
+   "address": "Владивосток, ул. 4-ая Проходная 35, 2 этаж",
+   "halls": [
+    {
+     "name": "Лофт"
+    },
+    {
+     "name": "Лобби"
+    },
+    {
+     "name": "Лаунж"
+    }
+   ],
+   "src": [
+    "studiogo:4098"
+   ]
+  },
+  {
+   "name": "Юнити",
+   "address": "Владивосток, Калинина 275в",
+   "halls": [],
+   "src": [
+    "studiogo:21752"
+   ],
+   "note": "тот же дом (Калинина 275В), что studiogo:8104, studiogo:6133, studiogo:19096, studiogo:11924; офис неизвестен"
+  },
+  {
+   "name": "Content Studio",
+   "address": "Владивосток, Воропаева 22",
+   "halls": [],
+   "src": [
+    "studiogo:12450"
+   ],
+   "note": "StudioGo показывает 0 залов"
+  },
+  {
+   "name": "Фотостудия Хьюго",
+   "address": "Владивосток, Русская 65 корпус 10",
+   "halls": [],
+   "src": [
+    "studiogo:8943"
+   ],
+   "note": "тот же дом (Русская 65, корп. 10), что studiogo:2448, studiogo:493, studiogo:3672, studiogo:633, studiogo:18791, studiogo:6399, studiogo:945; офис неизвестен"
+  },
+  {
+   "name": "Фотостудия \"Любовь\"",
+   "address": "Владивосток, Калинина 275в, 6 этаж",
+   "halls": [
+    {
+     "name": "Лофт"
+    },
+    {
+     "name": "Париж"
+    },
+    {
+     "name": "Будуар"
+    }
+   ],
+   "src": [
+    "studiogo:8104"
+   ],
+   "note": "тот же дом (Калинина 275В), что studiogo:21752, studiogo:6133, studiogo:19096, studiogo:11924; офис неизвестен"
+  },
+  {
+   "name": "ART HALL STUDIO",
+   "address": "Владивосток, Русская 65к, 5 этаж",
+   "halls": [
+    {
+     "name": "ART 5 этаж"
+    },
+    {
+     "name": "EVENT"
+    },
+    {
+     "name": "WHITE 5 этаж"
+    }
+   ],
+   "src": [
+    "studiogo:633"
+   ],
+   "note": "тот же дом (Русская 65, корп. 10), что studiogo:2448, studiogo:493, studiogo:3672, studiogo:8943, studiogo:18791, studiogo:6399, studiogo:945; офис неизвестен; этаж 5, как у studiogo:493"
+  },
+  {
+   "name": "Astudio",
+   "address": "Владивосток, Русская 65/10",
+   "halls": [],
+   "src": [
+    "studiogo:18791"
+   ],
+   "note": "тот же дом (Русская 65, корп. 10), что studiogo:2448, studiogo:493, studiogo:3672, studiogo:8943, studiogo:633, studiogo:6399, studiogo:945; офис неизвестен"
+  },
+  {
+   "name": "FORMAT STUDIO",
+   "address": "Владивосток, Пологая 66 А",
+   "halls": [],
+   "src": [
+    "studiogo:14225"
+   ]
+  },
+  {
+   "name": "Счастье",
+   "address": "Владивосток, Русская 65 корп 10 4 этаж",
+   "halls": [
+    {
+     "name": "Праздник"
+    },
+    {
+     "name": "Сказка"
+    }
+   ],
+   "src": [
+    "studiogo:6399"
+   ],
+   "note": "тот же дом (Русская 65, корп. 10), что studiogo:2448, studiogo:493, studiogo:3672, studiogo:8943, studiogo:633, studiogo:18791, studiogo:945; офис неизвестен; этаж 4, как у studiogo:945"
+  },
+  {
+   "name": "Фотостудия ФЬЮЖН",
+   "address": "Владивосток, ул. Русская 65, корпус 10 4 этаж",
+   "halls": [
+    {
+     "name": "Fusion"
+    },
+    {
+     "name": "примерное место 2"
+    }
+   ],
+   "src": [
+    "studiogo:945"
+   ],
+   "note": "тот же дом (Русская 65, корп. 10), что studiogo:2448, studiogo:493, studiogo:3672, studiogo:8943, studiogo:633, studiogo:18791, studiogo:6399; офис неизвестен; этаж 4, как у studiogo:6399"
+  },
+  {
+   "name": "студия 8 [ ex rooms ]",
+   "address": "Владивосток, Уборевича, 20а",
+   "halls": [],
+   "src": [
+    "studiogo:18996"
+   ]
+  },
+  {
+   "name": "Фотостудия \"Евразия\"",
+   "address": "Владивосток, Калинина 275В",
+   "halls": [
+    {
+     "name": "Конференция"
+    },
+    {
+     "name": "Классика"
+    },
+    {
+     "name": "Азия"
+    }
+   ],
+   "src": [
+    "studiogo:6133"
+   ],
+   "note": "тот же дом (Калинина 275В), что studiogo:21752, studiogo:8104, studiogo:19096, studiogo:11924; офис неизвестен"
+  },
+  {
+   "name": "Prostranstvo_vl",
+   "address": "Владивосток, Бородинская 20",
+   "halls": [
+    {
+     "name": "Muse"
+    },
+    {
+     "name": "BASE"
+    }
+   ],
+   "src": [
+    "studiogo:19011"
+   ],
+   "note": "тот же дом (Бородинская 20), что studiogo:20901; офис неизвестен"
+  },
+  {
+   "name": "PhotoZone",
+   "address": "Владивосток, 1-я морская 20",
+   "halls": [
+    {
+     "name": "Циклорама"
+    },
+    {
+     "name": "Белый"
+    }
+   ],
+   "src": [
+    "studiogo:8925"
+   ]
+  },
+  {
+   "name": "Тепло",
+   "address": "Владивосток, ул. Калинина, 275В, корпус 2",
+   "halls": [
+    {
+     "name": "Детский зал"
+    },
+    {
+     "name": "Большой зал"
+    }
+   ],
+   "src": [
+    "studiogo:19096"
+   ],
+   "note": "тот же дом (Калинина 275В), что studiogo:21752, studiogo:8104, studiogo:6133, studiogo:11924; офис неизвестен"
+  },
+  {
+   "name": "The People (since 2016)",
+   "address": "Владивосток, ул. Калинина, 275 В, 2 этаж",
+   "halls": [],
+   "src": [
+    "studiogo:11924"
+   ],
+   "note": "тот же дом (Калинина 275В), что studiogo:21752, studiogo:8104, studiogo:6133, studiogo:19096; офис неизвестен"
+  },
+  {
+   "name": "Текстуры",
+   "address": "Владивосток, Нижнепортовая 6Ас1",
+   "halls": [
+    {
+     "name": "Апарт"
+    },
+    {
+     "name": "Текстуры"
+    }
+   ],
+   "src": [
+    "studiogo:13977"
+   ]
+  },
+  {
+   "name": "Дворик Света и Любви",
+   "address": "Владивосток, Пушкинская 25Е",
+   "halls": [],
+   "src": [
+    "studiogo:2573"
+   ]
+  }
+ ],
+ "closed": []
+}

@@ -1,0 +1,213 @@
+{
+ "city": "Волгоград",
+ "collected": "2026-11-04",
+ "sources": {
+  "studiogo": "https://studiogo.ru/volgograd/studios",
+  "2gis": null
+ },
+ "note": "черновик, не проверено",
+ "studios": [
+  {
+   "name": "JOY",
+   "address": "Волгоград, Козловская 58",
+   "halls": [
+    {
+     "name": "Сyclorama"
+    },
+    {
+     "name": "Apart"
+    },
+    {
+     "name": "Grey"
+    }
+   ],
+   "src": [
+    "studiogo:6295"
+   ]
+  },
+  {
+   "name": "Sozdavai Studio / Студия Создавай",
+   "address": "Волгоград, Симбирская 11",
+   "halls": [
+    {
+     "name": "Ретро Спальня"
+    },
+    {
+     "name": "Ретро Столовая"
+    },
+    {
+     "name": "Циклорама"
+    }
+   ],
+   "src": [
+    "studiogo:20147"
+   ]
+  },
+  {
+   "name": "Alice Studio",
+   "address": "Волгоград, Елецкая 587",
+   "halls": [
+    {
+     "name": "LIGHT"
+    },
+    {
+     "name": "ART"
+    }
+   ],
+   "src": [
+    "studiogo:7062"
+   ]
+  },
+  {
+   "name": "Фотостудия Фабрика",
+   "address": "Волгоград, Проспект Ленина 102, офис 501",
+   "halls": [
+    {
+     "name": "ЦЕХ 1"
+    },
+    {
+     "name": "ЦЕХ 2"
+    }
+   ],
+   "src": [
+    "studiogo:1359"
+   ]
+  },
+  {
+   "name": "SOFT LIGHT",
+   "address": "Волгоград, Козловская, дом 58, 2 (этаж)",
+   "halls": [
+    {
+     "name": "Зал WHITE"
+    },
+    {
+     "name": "Зал GROSS"
+    }
+   ],
+   "src": [
+    "studiogo:9834"
+   ],
+   "note": "возможно, то же место, что studiogo:1756 (Фотостудия SOFT LIGHT): тот же дом, одинаковые залы White/Gross; возможно, и studiogo:9804 (2 этаж, залы Gross/White)"
+  },
+  {
+   "name": "BROOKLYN",
+   "address": "Волгоград, Козловская 58, 4 этаж",
+   "halls": [
+    {
+     "name": "Зал №1"
+    },
+    {
+     "name": "Зал №2 Циклорама"
+    },
+    {
+     "name": "Зал №3"
+    }
+   ],
+   "src": [
+    "studiogo:1084"
+   ]
+  },
+  {
+   "name": "Интерьерная фотостудия",
+   "address": "Волгоград, Козловская 58, 2 ой этаж",
+   "halls": [
+    {
+     "name": "Зал GROSS"
+    },
+    {
+     "name": "Зал WHITE"
+    }
+   ],
+   "src": [
+    "studiogo:9804"
+   ],
+   "note": "возможно, то же место, что studiogo:9834 (SOFT LIGHT): тот же дом, 2 этаж, залы Gross/White"
+  },
+  {
+   "name": "АТМОСФЕРА",
+   "address": "Волгоград, проезд Дорожников 44/1",
+   "halls": [
+    {
+     "name": "Вдохновение"
+    },
+    {
+     "name": "Колорит"
+    }
+   ],
+   "src": [
+    "studiogo:1468"
+   ]
+  },
+  {
+   "name": "Фотостудия Пиксель",
+   "address": "Волгоград, Проспект Ленина 67, 7й этаж, офис 700",
+   "halls": [
+    {
+     "name": "Светлый зал"
+    },
+    {
+     "name": "Лофт"
+    }
+   ],
+   "src": [
+    "studiogo:1833"
+   ]
+  },
+  {
+   "name": "Studio 1A",
+   "address": "Волгоград, Рабоче-Крестьянская 50/1",
+   "halls": [],
+   "src": [
+    "studiogo:3573"
+   ]
+  },
+  {
+   "name": "Фотостудия Black Milk",
+   "address": "Волгоград, Канунникова 1",
+   "halls": [
+    {
+     "name": "Деревянный зал"
+    },
+    {
+     "name": "Белый зал"
+    }
+   ],
+   "src": [
+    "studiogo:10201"
+   ]
+  },
+  {
+   "name": "Фотостудия SOFT LIGHT",
+   "address": "Волгоград, ул. Козловская, 58",
+   "halls": [
+    {
+     "name": "White"
+    },
+    {
+     "name": "Gross"
+    }
+   ],
+   "src": [
+    "studiogo:1756"
+   ],
+   "note": "возможно, то же место, что studiogo:9834 (SOFT LIGHT): тот же дом, одинаковые залы White/Gross; возможно, и studiogo:9804"
+  },
+  {
+   "name": "Мастер и Маргарита",
+   "address": "Волгоград, ул. Пушкина, д. 14",
+   "halls": [],
+   "src": [
+    "studiogo:323"
+   ]
+  },
+  {
+   "name": "Аренда",
+   "address": "Волгоград, Проспект Ленина 99",
+   "halls": [],
+   "src": [
+    "studiogo:7063"
+   ]
+  }
+ ],
+ "closed": []
+}
